@@ -1,0 +1,97 @@
+@charset "UTF-8";
+@import "../variables";
+@import "../utility";
+
+table,
+th,
+tr,
+td {
+    border: none;
+}
+.table td {
+    vertical-align: middle;
+    padding: 0.45rem;
+    & .product-select{
+      min-width: 15rem;
+    }
+    & .product-count{
+      width: 3rem;
+    }
+    & .unit{
+      width: 3rem;
+    }
+    & .unit-price{
+      width: 4rem;
+    }
+    & .price{
+      width: 5rem;
+    }
+    & .type{
+      width: 6rem;
+    }
+    & .memo{
+      min-width: 18rem;
+    }
+}
+.form-control {
+    font-size: 0.8rem;
+}
+.handle {
+    cursor: pointer;
+}
+.form-group {
+    margin-bottom: 0;
+}
+
+.quotation-target {
+    border-bottom: 1px solid #ccc;
+}
+
+.company-wrapper {
+    position: relative;
+    &__info {
+        font-size: 0.9rem;
+    }
+    &__seal {
+        position: absolute;
+        top: 7rem;
+        right: 3rem;
+        height: 4rem;
+    }
+}
+
+.culc-wrapper {
+    background-color: #f0f0f0;
+}
+
+.plus-button {
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.memo, .payee {
+    width: 100%;
+}
+
+.card {
+    padding: 1rem;
+}
+//========= タブレットの場合 card のパディングを減らす ==============
+@media only screen and (max-width: 1280px) {
+    .card {
+        padding: 10px;
+    }
+}
+
+.article {
+    position: relative;
+}

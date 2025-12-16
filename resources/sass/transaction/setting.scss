@@ -1,0 +1,17 @@
+.table-container {
+  overflow: auto;
+  max-height: 700px; /* スクロール可能領域の高さを指定 */
+}
+
+table {
+  width: 100%;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background-color: #f2f2f2; /* ヘッダーの背景色を指定 */
+}
+.th2 {
+  top: 50px;
+}

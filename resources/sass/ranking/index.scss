@@ -1,0 +1,30 @@
+@charset "UTF-8";
+@import "../variables";
+
+.rank-tr {
+    line-height: 5rem;
+}
+.rank {
+    font-size: 1.6rem;
+    &__trophy {
+        position: relative;
+        font-size: 3rem;
+        left: -1px;
+        top: 1rem;
+        z-index: 1;
+    }
+    &__number {
+        position: relative;
+        left: 1.2rem;
+        z-index: 3;
+    }
+    &__number--top3 {
+        left: -2.3rem;
+    }
+}
+
+.ranking-form-select {
+    margin: 0 7px;
+    width: 7rem;
+    font-size: 1.2rem;
+}

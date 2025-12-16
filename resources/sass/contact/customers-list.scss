@@ -1,0 +1,73 @@
+@import "../variables";
+@import "../utility.scss";
+
+.common-form,
+.pankuzu,
+.table-stripes-row {
+    min-width: 950px;
+    
+}
+.contact-type {
+    &__label {
+        max-width: 75px;
+    }
+}
+.step {
+    &__label {
+        margin-right: 10px;
+        max-width: 30px;
+    }
+}
+//stepアイコンの全体の横幅
+.step_labels {
+    width: 220px;
+}
+.td_adjustment {
+    padding: 1.9rem 0.5rem;
+}
+.table-stripes-row {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: $table-gray-light;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    th {
+        padding: 1rem 0.5rem;
+    }
+    td {
+        padding-left: 0.5rem;
+    }
+    //table ヘッダー部分
+    &-thead {
+        margin: 3rem;
+        th {
+            background-color: $gray;
+        }
+        &__th-span {
+            padding: 0 2rem;
+        }
+    }
+    //table ボディー部分
+    /* &-tbody__td {
+        padding: 0.3rem 0;
+    } */
+    &-tbody__th-span {
+        padding: 0 2rem;
+    }
+    tr:nth-child(odd) {
+        background-color: $table-aqua-light;
+    }
+    tr:nth-child(even) {
+        background-color: $table-gray-light;
+    }
+}
+
+.select2-dropdown{
+    width: 300px !important;
+}
+.inactive{
+    display: flex;
+    align-items: center;
+    opacity: 0.5;
+}

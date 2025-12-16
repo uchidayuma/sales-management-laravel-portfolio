@@ -1,0 +1,180 @@
+@import "./variables";
+
+body {
+    font-size: 13px;
+}
+.disabled:hover {
+    cursor: not-allowed;
+}
+.common-table {
+    width: 100%;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    background-color: #fff;
+}
+.common-table-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    font-size: 1rem;
+    border-bottom: 1px solid #ccc;
+    background-color: #fff;
+    margin-bottom: 30px;
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &__heading {
+        font-weight: bold;
+        padding: 0.3rem;
+    }
+    &__list {
+        padding: 0.3rem;
+    }
+    &__angle {
+        position: absolute;
+        right: 10px;
+        color: $primary-blue;
+    }
+    &:nth-child(even) {
+        background-color: $info;
+    }
+}
+//thが縦並びの際に使用するclass
+.common-table-stripes-column {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: $table-gray-light;
+    font-size: 1rem;
+    //必須表示
+    &__span {
+        color: $red;
+        text-align: right;
+    }
+    th {
+        padding: 0.5rem 1rem;
+        width: 15rem;
+        font-size: 1.05rem;
+    }
+    td {
+        padding-left: 1rem;
+    }
+    //テーブルにストライプ柄をつけている部分
+    tr:nth-child(odd) {
+        background-color: $table-aqua-light;
+        //th部分だけ濃い目に表示するため
+        th {
+            background-color: $table-aqua;
+        }
+    }
+    tr:nth-child(even) {
+        background-color: $table-gray-light;
+        //th部分だけ濃い目に表示するため
+        th {
+            background-color: $table-gray;
+        }
+    }
+}
+//thが横並びの際に使用するclass
+.common-table-stripes-row {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: $table-gray-light;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    th {
+        padding: 0.5rem 1rem;
+    }
+    td {
+        padding-left: 1rem;
+    }
+    //table ヘッダー部分
+    &-thead {
+        margin: 3rem;
+        th {
+            background-color: $gray;
+        }
+        &__th-span {
+            padding: 0 2rem;
+        }
+    }
+    //table ボディー部分
+    &-tbody {
+        &__td {
+            padding: 0.3rem 0;
+        }
+        &__th-span {
+            padding: 0 2rem;
+        }
+    }
+    tr:nth-child(odd) {
+        background-color: $table-aqua-light;
+    }
+    tr:nth-child(even) {
+        background-color: $table-gray-light;
+    }
+}
+// パンくずリスト
+.breadcrumbs {
+    display: flex;
+    list-style: none;
+    padding-left: 0;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+.breadcrumbs-notop {
+    display: flex;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0.5rem;
+}
+// ジェネレーターでliのクラス指定はできないので、しゃーないな〜
+.breadcrumbs li a {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: $black;
+}
+.breadcrumbs li span {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: $black;
+}
+.breadcrumbs i {
+    color: $info;
+    margin-right: 0.5rem;
+}
+
+.breadcrumbs .divider {
+    font-size: 1.1rem;
+    color: $info;
+    margin: 0 0.4rem;
+}
+//ページ内での検索部分
+.common-form {
+    background-color: $info;
+    padding: 1rem;
+    margin-top: 1rem;
+
+    &__control {
+        height: 2rem;
+        margin: 0 0.5rem;
+        font-size: 1rem;
+    }
+    &__input {
+        width: 15rem;
+        height: 2rem;
+        margin: 0 0.5rem;
+        font-size: 1rem;
+    }
+}
+
+.pagination {
+    justify-content: center;
+}
+//戻るボタン
+.common-back {
+    width: 8rem;
+    margin: 2rem 0;
+}

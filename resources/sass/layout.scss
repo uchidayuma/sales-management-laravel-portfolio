@@ -1,0 +1,392 @@
+@import "variables";
+@import "mixins";
+
+//一括変換=============================
+$background-color__gray: #dcdcdc;
+$header__height: 8vh;
+$footer__height: 6vh;
+$aside__width: 20rem;
+$py4__height: 82vh;
+//====================================
+* {
+    //user agent stylesheet　上書き
+    p {
+        margin-block-start: 0;
+        margin-block-end: 0;
+        margin-inline-start: 0;
+        margin-inline-end: 0;
+    }
+}
+// ヘッダー・フッター・サイドバーなどはここ
+body {
+    background-image: url("../images/shintou-background.png");
+    background-size: cover;
+    @include mq-down(sm) { 
+        background-size: auto;
+        background-position: left 35% top 10%;
+    }
+}
+#app {
+    margin: 1vh;
+}
+//header
+.header {
+    height: 6vh;
+    background-color: $background-color__gray;
+    margin-bottom: 1vh;
+    padding: 0.5rem 0;
+    &-right {
+        margin: 0 0 0 auto;
+        i {
+            margin: 0 1rem;
+        }
+    }
+    &-right__menu {
+        padding: 0 1rem;
+    }
+}
+.header-left {
+    height: 6vh;
+    //background-color: $background-color__gray;
+    margin-bottom: 0.2vh;
+    padding: 0.5rem 0;
+    align-items: center;
+    &__title {
+        margin: 0 0 0 0.5rem;
+    }
+    &__shintou-logo {
+        height: 100%;
+        margin: auto 0 auto 0.3rem;
+    }
+    h1 {
+        color: $black;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+}
+.header-right {
+    &__company {
+        font-size: 1.2rem;
+    }
+    &__icon-wrapper {
+        background-color: $primary;
+        border-radius: 50%;
+        width: 2.7rem;
+        height: 2.7rem;
+        cursor: pointer;
+    }
+    &__icon-wrapper--square {
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    &__icon {
+        color: $white;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    &__circle {
+        position: relative;
+    }
+    &__circle-notification {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        border-radius: 5px;
+        background-color: $red;
+        color: $white;
+        width: 1rem;
+        text-align: center;
+        font-size: 0.8rem;
+    }
+}
+.info-circle-contents {
+    display: none;
+    position: absolute;
+    overflow: scroll;
+    z-index: 100;
+    top: 60px;
+    right: 0;
+    min-height: 10rem;
+    max-height: 20rem;
+    width: 20rem;
+    border: solid 2px $info;
+    padding: 0.5rem;
+    background-color: $white;
+    &::before {
+        @include triangle(top, 20px, 20px, $info);
+        content: "";
+        position: absolute;
+        top: -20px;
+        right: 7px;
+    }
+    &__item {
+        display: block;
+        margin-bottom: 15px;
+    }
+    &__item:hover {
+        text-decoration: underline;
+    }
+}
+//footer
+.footer {
+    height: $footer__height;
+    background-color: $background-color__gray;
+    align-items: flex-end;
+}
+//main 配置
+main.main {
+    display: -webkit-flex;
+    display: flex;
+    height: 84vh;
+    margin-bottom: 1vh;
+    .asaide {
+        width: $aside__width;
+    }
+    .article {
+        -webkit-flex: 1;
+        flex: 1;
+        height: auto;
+        background-color: #dbdbdb;
+        overflow: scroll;
+    }
+}
+//サイドバー
+.sidebar-list {
+    list-style: none;
+    padding-inline-start: 0;
+    height: 100%;
+    overflow: scroll;
+
+    &-menu-items {
+        display: none;
+        list-style: none;
+        padding-inline-start: 0.3rem;
+        color: $info;
+    }
+    &-menu-items__li {
+        margin: 0.4rem;
+        padding: 0 0.5rem;
+        background-color: $white;
+        cursor: pointer;
+        position: relative;
+    }
+    &-menu-items__li i {
+        margin-right: 0.3rem;
+    }
+    &-menu-items__li a {
+        display: block;
+        line-height: 3;
+        height: 100%;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    &-menu__title {
+        display: block;
+        color: $white;
+        font-size: 1.2rem;
+        background-color: $info;
+        padding: 1rem;
+        margin: 0 1rem 0.5rem 0;
+        cursor: pointer;
+    }
+    &-menu__title-2nd {
+        display: block;
+        font-size: 1.2rem;
+        margin: 0.4rem;
+        padding: 1rem 0.5rem;
+        height: 100%;
+        background-color: $primary;
+        color: $white;
+        cursor: pointer;
+    }
+    &-menu__space {
+        height: 12rem;
+    }
+    &-menu-items__li-badge {
+        position: absolute;
+        font-size: 1rem;
+        top: -4px;
+        right: -0.3rem;
+        padding: 0 0.4rem;
+        line-height: 1.5;
+        border-radius: 0.7rem;
+        color: $white;
+        background-color: $accent-green;
+    }
+    &-menu-items__li-badge-top {
+        color: $white;
+        background-color: $accent-green;
+        padding: 0.3rem;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+    }
+}
+.sidebar-article-wrapper {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    line-height: 50px;
+    text-align: center;
+}
+.sidebar-article {
+    &__icon {
+        background-color: $info;
+        position: absolute;
+        top: 10px;
+        right: 1em;
+        font-size: 2em;
+    }
+    &__num {
+        position: absolute;
+        right: 2.75em;
+        color: $red;
+        font-weight: bold;
+    }
+}
+
+.uploader {
+    position: relative;
+}
+.js-file {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    opacity: 0;
+    cursor: pointer;
+}
+.js-image-remove {
+    z-index: 3;
+    cursor: pointer;
+}
+
+.alert-top {
+    position: fixed;
+    top: 10vh;
+    z-index: 9999;
+}
+
+/*============= ここからハンバーガーメニュー（スライド出し入れ部分） ===============*/
+//1024px以上の時はハンバーガーメニューを消しておく
+.block-sidebar-hide {
+    display: none;
+}
+//============= article をここに記述 調整用 ===========
+
+article {
+    padding-top: 20px;
+    padding: 30px;
+}
+
+//1280px以下になった時の動作等
+@media only screen and (max-width: 1280px) {
+    //既存のサイドバー を非表示
+    .none-sidebar {
+        display: none;
+    }
+    //ハンバーガーメニュー側のサイドバーを表示
+    .block-sidebar {
+        display: block;
+    }
+    //1280px以下になった時のヘッダーの動作
+    .header-left__title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding-top: 0.3rem;
+    }
+    article {
+        padding: 5px !important;
+    }
+}
+/*チェックボックス非表示*/
+.nav-unshown {
+    display: none;
+}
+#nav-open span,
+#nav-open span:before,
+#nav-open span:after {
+    position: absolute;
+    height: 3px; /*線の太さ*/
+    width: 25px; /*長さ*/
+    border-radius: 3px;
+    background: #555;
+    display: block;
+    content: "";
+    cursor: pointer;
+}
+#nav-open span:before {
+    bottom: -8px;
+}
+#nav-open span:after {
+    bottom: -16px;
+}
+
+/*閉じる用の薄黒カバー*/
+#nav-close {
+    display: none; /*はじめは隠しておく*/
+    position: fixed;
+    z-index: 99;
+    top: 0; /*全体に広がるように*/
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    opacity: 0;
+    transition: 0.3s ease-in-out;
+}
+
+/*中身*/
+#nav-content {
+    overflow: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999; /*最前面に*/
+    width: 90%; /*右側に隙間を作る*/
+    max-width: 330px; /*最大幅*/
+    height: 100%;
+    background: #ffffff80; /*背景色*/
+    transition: 0.3s ease-in-out; /*滑らかに表示*/
+    -webkit-transform: translateX(-105%);
+    transform: translateX(-105%); /*左に隠しておく*/
+    padding-top: 0.5rem; /*サイドバー上側のパディング*/
+}
+
+/*チェックが入ったらもろもろ表示*/
+#nav-input:checked ~ #nav-close {
+    display: block; /*カバーを表示*/
+    opacity: 0.5;
+}
+
+#nav-input:checked ~ #nav-content {
+    -webkit-transform: translateX(0%);
+    transform: translateX(0%); /*中身を表示*/
+    box-shadow: 6px 0 25px rgba(0, 0, 0, 0.15);
+}
+/*============= ここまでハンバーガーメニュー（スライド出し入れ部分） ===============*/
+
+.loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(300% + 1000px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    & i {
+        margin-top: 300px;
+        color: #fff;
+    }
+    &__message {
+        position: absolute;
+        top: 46vh;
+        z-index: 9999;
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+    }
+}

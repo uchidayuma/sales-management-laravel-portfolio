@@ -1,0 +1,61 @@
+@import "../variables";
+@import "../utility.scss";
+//ユーザーページ編集ページのデザイン
+
+.common-table-stripes-column {
+    &__input {
+        width: 9rem;
+        margin-right: 0;
+    }
+}
+
+.common-table-stripes-column td {
+    padding: 10px;
+}
+
+.staff2,
+.staff3,
+.infomation2,
+.infomation3 {
+    display: table-row;
+}
+
+.seal {
+    max-height: 100px;
+}
+.js-image-remove {
+    z-index: 3;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    text-shadow: 0 0 2px #000;
+}
+
+.uploader {
+    position: relative;
+    overflow: hidden;
+    width: 40%;
+    height: 100px;
+    background: #f3f3f3;
+    border: 2px dashed #e8e8e8;
+    box-shadow: 0 4px 12px #bbb;
+}
+.uploader img {
+    position: absolute;
+    max-height: 98px;
+    top: -1px;
+    left: -1px;
+    z-index: 1;
+    border: none;
+    -o-object-fit: cover;
+    object-fit: cover;
+    // display: none;
+}
+.uploader__description {
+    font-size: 1rem;
+    padding: 5px;
+}
+
+.custom-control-label::before {
+    background-color: #fff;
+}

@@ -1,0 +1,47 @@
+@import "../variables";
+@import "../utility";
+
+.nav-item {
+    &__public {
+        background-color: #3655a6;
+    }
+    &__private {
+        background-color: #639bcd;
+    }
+    &__draft {
+        background-color: #ee5523;
+    }
+    a {
+        text-decoration: none;
+        color: #fff;
+    }
+    font-size: 1.5rem;
+}
+
+.main-content {
+    background-color: #fff;
+    width: 100%;
+    padding: 3rem;
+    &__body {
+        height: 46vh;
+        overflow-y: scroll;
+    }
+    &__ul i {
+        color: $primary;
+    }
+    &__ul li {
+        list-style-type: none !important;
+        font-size: 2rem;
+    }
+
+    h1 {
+        border-bottom: 2px solid $primary;
+    }
+    p {
+        font-size: 1rem;
+    }
+    img{
+        display: block;
+        max-width: 100%;
+    }
+}

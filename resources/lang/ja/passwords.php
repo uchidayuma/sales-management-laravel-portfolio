@@ -1,0 +1,28 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Reset Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | The following language lines are the default lines which match reasons
+    | that are given by the password broker for a password update attempt
+    | has failed, such as for an invalid token or invalid new password.
+    |
+    */
+
+    'password' => 'パスワードは6文字以上にして、確認用入力欄と一致させてください。',
+    'reset' => 'パスワードは再設定されました！',
+    'sent' => 'パスワード再設定用のURLをメールで送りました。',
+    'token' => 'パスワード再設定用のトークンが不正です。',
+    'user' => "メールアドレスに一致するユーザーが存在しません。",
+
+    "title" => "パスワードリセットのお知らせ",
+    "line" => "パスワードリセットの受け付けました。",
+    "action" => "パスワードリセット",
+    "out_line1" => "こちらのパスワードリセットの有効期限は :count 分です。",
+    "out_line2" => "こちらのメールに身に覚えがない場合は、無視をしてください。"
+
+];

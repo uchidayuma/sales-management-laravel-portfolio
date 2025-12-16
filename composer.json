@@ -1,0 +1,84 @@
+{
+    "name": "laravel/laravel",
+    "type": "project",
+    "description": "The Laravel Framework.",
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.0",
+        "azuyalabs/yasumi": "^2.1",
+        "barryvdh/laravel-dompdf": "^2.0.0",
+        "creitive/laravel-breadcrumbs": "^1.0",
+        "doctrine/dbal": "^2.9",
+        "freee/freee-accounting-sdk": "2.10.0",
+        "fruitcake/laravel-cors": "^3.0",
+        "guzzlehttp/guzzle": "^7.0.1",
+        "intervention/image": "^2.5",
+        "laravel/framework": "^9.5.1",
+        "laravel/tinker": "^2.7.2",
+        "laravel/ui": "^3.0",
+        "illuminate/support":"^9.2.0",
+        "league/flysystem-aws-s3-v3": "^3.0",
+        "mnabialek/laravel-sql-logger": "^2.2",
+        "smalot/pdfparser": "^0.18.2",
+        "snapappointments/bootstrap-select": "^1.13",
+        "socialiteproviders/generators": "^4.5",
+        "socialiteproviders/manager": "^4.1.0"
+    },
+    "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.2",
+        "filp/whoops": "^2.0",
+        "fzaninotto/faker": "^1.4",
+        "laravel/dusk": "^6.25.0",
+        "mockery/mockery": "^1.0",
+        "nunomaduro/collision": "^6.1",
+        "phpunit/phpunit": "^9.0",
+        "staudenmeir/dusk-updater": "^1.1"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "SocialiteProviders\\FreeeAccounting\\": "SocialiteProviders/src/FreeeAccounting/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        },
+        "files": [
+            "app/helpers.php"
+        ],
+        "classmap": [
+            "database/seeds",
+            "database/factories"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ]
+    }
+}

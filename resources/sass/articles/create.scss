@@ -1,0 +1,39 @@
+@import "../variables";
+
+#trumbowyg {
+    background-color: #fff;
+}
+.tab-content{
+    background-color: #fff;
+    padding: 2rem;
+}
+table{
+    border-collapse:collapse;
+    width: 100%;
+    font-size: 1rem;
+}
+td{
+    border-bottom:2px dashed #999;
+}
+tr:last-child td{
+    border-bottom:none;
+}
+td,th{
+    padding: 1rem 0;
+}
+.nav-item{
+    &__public{
+        background-color: #3655A6;
+    }
+    &__private{
+        background-color: #639BCD;
+    }
+    &__draft{
+        background-color: #EE5523;
+    }
+    a{
+        text-decoration:none;
+        color: #fff;
+    }
+    font-size: 1.5rem;
+}

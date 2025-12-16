@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="YszrmFvkm4jX8mfjOy5jW9Fs1NkyMUJBbwnQtg8y">
+    <title>発注書ダウンロード</title>
+
+    <!-- Styles -->
+    <link href="http://localhost/styles/fontawesome/fontawesome.min.css" rel="stylesheet">
+    <link href="http://localhost/styles/app.min.css" rel="stylesheet">
+    <link href="http://localhost/styles/layout.min.css" rel="stylesheet">
+    <link href="http://localhost/styles/common.min.css" rel="stylesheet">
+    <style type="text/css">
+      @font-face {
+        font-family: ipag;
+        font-style: normal;
+        font-weight: normal;
+        src: url('/var/www/html/storage/fonts/ipag.ttf') format('truetype');
+      }
+      @font-face {
+        font-family: ipag;
+        font-style: bold;
+        font-weight: bold;
+        src: url('/var/www/html/storage/fonts/ipagp.ttf') format('truetype');
+      }
+      body {
+        font-family: ipag !important;
+        background-image: none;
+        font-size : 13px;
+        margin: 0;
+        padding: 0;
+      }
+      p {
+        font-family: ipag !important;
+        background-image: none;
+        /* font-size : 12px; */
+        font-weight: 400;
+      }
+      h4 {
+        font-family: ipag !important;
+        background-image: none;
+      }
+      table {
+        font-size: 13px;
+      }
+      .thick-border{
+        border: solid 3px #333; 
+        border-collapse: collapse;
+      }
+      .thick-border__td{
+        padding : 0.5rem 0.5rem;
+        border: solid 1px #333; 
+        font-weight: 400;
+        word-wrap: break-word;
+      }
+      .thick-border__th{
+        padding : 0.5rem 0.5rem;
+        border: solid 1px #333;
+        font-style: bold;
+        font-weight: bold;
+        background-color: #ccc;
+        word-wrap: break-word;
+      }
+      .memo-heading{
+        font-family: ipag !important;
+        background-image: none;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .company-wrapper{
+        position: relative;
+        overflow: visible;
+      }
+      .company-wrapper__seal{
+        max-width: 80px;
+        min-width: 70px;
+        position: absolute;
+        top: 10%;
+        right: 30%;
+      }
+      .shiba-logo{
+        position: absolute;
+        top : 0;
+        right : 0;
+        width : 70px;
+        height : 70px;
+      }
+      .pl30{
+        padding-left: 30px;
+      }
+      .company-wrapper__info{
+        margin: 0;
+      }
+      .memo {
+        max-width: 100%;
+        overflow-wrap: break-word;
+      }
+      .break-word{
+        word-break: break-word;
+      }
+      .page-number:after { content: counter(page); }
+      .transport-info {
+        display: inline-block;
+        width: 30%;
+        margin-right: 2%;
+        text-align: center;
+        vertical-align: middle;
+      }
+    </style>
+
+    <!-- jQuery -->
+    <script src="http://localhost/js/jquery/jquery-3.4.1.min.js" defer></script>
+    <script src="http://localhost/js/jquery/jquery-ui.min.js" defer></script>
+
+    <script src="http://localhost/js/app.js" defer></script>
+    <script src="http://localhost/js/sidebar.js" defer></script>
+  </head>
+
+  <body>
+    
+    <img class="shiba-logo" src="http://localhost/images/logo-r.jpg" alt="しばんちゅLogo">
+
+    <section class='mb-2'>
+      <h4 class='h4 bold mb-5'>発注書No.2321</h4>
+          <div class='transport-info'>
+        <table class="table table-bordered">
+          <tr>
+            <th class=''>出荷日</th>
+            <td class="thick-border__td">2024年08月25日</td>
+          </tr>
+          <tr>
+            <th class=''>配送業者</th>
+            <td class="thick-border__td">西濃運輸</td>
+          </tr>
+          <tr>
+            <th class=''>追跡番号</th>
+            <td class="thick-border__td break-word">1111111</td>
+          </tr>
+        </table>
+      </div>
+                </section>
+    <div class='w100per mb-2'>
+      <div class='w70 d-inline-block align-top'>
+        <table class="table table-bordered mw-100" style="table-layout: fixed;">
+                <tr>
+            <th class='w40'>受け取り場所<br>
+                    </th>
+            <td class="thick-border__td">〒3060053 茨城県古河市中田2417-5</td>
+          </tr>
+          <tr>
+            <th class='w40'>受け取り人</th>
+            <td class="thick-border__td">株式会社山本工業サービス 山本様</td>
+          </tr>
+          <tr>
+                  <th class='w40'>FC電話番号 </th><td>028-023-6259</td>
+                </tr>
+          <tr>
+            <th class='w40'>納品希望日</th>
+            <td class="thick-border__td">
+              2024年09月13日
+            </td>
+          </tr>
+              <tr class=''>
+            <th>その他備考</th><td class='apply-new-line thick-border__td memo'></td>
+          </tr>
+        </table>
+
+        <table class="table table-bordered w70">
+          <thead>
+            <tr>
+              <th scope="col" class="">小計(円)</td>
+              <th scope="col" class="">消費税(円)</td>
+              <th scope="col" class="">合計金額(円)</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="thick-border__td" id="subTotal">302,000</td>
+              <td class="thick-border__td" id='tax'>30,200</td>
+              <td class="thick-border__td" id='total' class="total">332,200</td>
+            </tr>
+          </tbody>
+        </table>
+      </div><!-- w55per -->
+      <div class='company-wrapper w20 d-inline-block align-top ml-5'>
+              <p class='company-wrapper__info mb10'>発注書番号： 2321</p>
+              <p class='company-wrapper__info mb10'>発注日： 2024年08月25日</p>
+        <h4 class='h4 bold'>株式会社山本工業サービス</h4>
+
+        <!-- FCの住所を表示 -->
+        <p class='company-wrapper__info'>〒3060053</p>
+        <p class='company-wrapper__info'>茨城県古河市中田2417-5
+      </div><!-- w20per -->
+    </div>
+
+    <table class="thick-border w100per" id="quotationTable" style="width: 100%">
+      <tr>
+        <th class="thick-border__th text-center w35per">詳細</th>
+        <th class="thick-border__th text-center w10per">数量</th>
+        <th class="thick-border__th text-center w10per">単位</th>
+        <th class="thick-border__th text-center w10per">単価(円)</th>
+        <th class="thick-border__th text-center w10per">金額(円)</th>
+      </tr>
+      <!-- 手動入力注文なら -->
+        <tr>
+        <td class="thick-border__td">SB30CP1（2m ×10m）</td>
+        <td class="thick-border__td text-right">10</td>
+        <td class="thick-border__td text-center">反</td>
+        <td class="thick-border__td text-right">30,000</td>
+        <td class="thick-border__td text-right">300,000</td>
+      </tr>
+          <!-- 人工芝の切り売りならば -->
+  
+      <tr>
+        <td colspan="4" class="thick-border__td">送料</td>
+        <td colspan="1" class="thick-border__td">2,000円</td>
+    </table>
+  </body>
+</html>

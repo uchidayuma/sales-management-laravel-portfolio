@@ -1,0 +1,213 @@
+# PHP CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-php/ for more details
+#
+version: 2.1
+orbs:
+  php: circleci/php@1.1.0
+  browser-tools: circleci/browser-tools@1.4.3
+jobs:
+  build:
+    docker:
+      - image: cimg/php:8.1-browsers
+      - image: cimg/mariadb:10.5
+        auth:
+            username: $DOCKERHUB_USER # can specify string literal values
+            password: $DOCKERHUB_PASSWORD  # or project environment variable reference
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mysql:9.4
+    environment:
+      - APP_DEBUG: true
+      - APP_ENV: circleci
+      - APP_KEY: base64:+srHE3gUlgaWMSi+ZhQn9y89ieR7UgyBPGuLUFMKvjY=
+      - GOOGLE_API_KEY: ${GOOGLE_KEY}
+      - EMAIL_VALIDATE_ENDPOINT: https://emailvalidation.abstractapi.com/v1
+      - EMAIL_VALIDATE_API_KEY: 76a93647469f403d95ac662ba6a85162
+      - DB_CONNECTION: circle_test
+      - APP_URL: http://localhost:8000
+      - MYSQL_ALLOW_EMPTY_PASSWORD: true
+      - AWS_ACCESS_KEY_ID: ${AWS_KEY}
+      - AWS_SECRET_ACCESS_KEY: ${AWS_SECRET}
+      - AWS_DEFAULT_REGION: ap-northeast-1
+      - AWS_BUCKET: shibancyu-develop
+      - MAIL_DRIVER: smtp
+      - MAIL_HOST: smtp
+      - MAIL_PORT: 1025
+      - MAIL_USERNAME: null
+      - MAIL_PASSWORD: null
+      - MAIL_ENCRYPTION: null
+      - FREEE_ACCOUNTING_CLIENT_ID: "805006c5b7828bddbd58dc645edfe8b15c86b114b25256f22e0cb8b7c0d401db"
+      - FREEE_ACCOUNTING_CLIENT_SECRET: "7f4989da34e98b6c96df414dc71d143a01b221acee03d71172960579de0b7dbc"
+      - FREEE_CALLBACK: ""
+      - FACTORY_ADDRESS: "〒442-0809 愛知県豊川市大橋町3-5"
+      #- OFFICE_HOLIDAY: "https://spreadsheets.google.com/feeds/cells/1b97juV-tvbj7MLB0WSDar5hG4GsR8KV-ZWiXYRHdCPo/od6/public/values?alt=json"
+      - OFFICE_HOLIDAY: 'https://spreadsheets.google.com/feeds/cells/1NzWl758GFOrvVb2Oagt5kCnfSjYhWai1KJ6i0GaFIKs/od6/public/values?alt=json'
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - browser-tools/install-chrome:
+          chrome-version: "114.0.5735.90"
+          replace-existing: true
+      # - browser-tools/install-chrome
+      # - browser-tools/install-chromedriver
+      # - run:
+      #     name: Fix PATH
+      #     command: |
+      #       ln -s /usr/local/bin/google-chrome-stable /usr/local/bin/google-chrome
+      #       mv /usr/local/bin/chromedriver /usr/local/bin/chromedriver2
+      #       ln -s /usr/local/bin/chromedriver2/chromedriver /usr/local/bin/chromedriver
+      #       echo 'export PATH=/usr/local/bin/google-chrome:$PATH' >> $BASH_ENV
+      #       echo 'export PATH=/usr/local/bin/chromedriver:$PATH' >> $BASH_ENV
+      - run:
+          name: base64 decode env file
+          # ファイルに改行が含まれているので`-i`オプションを付ける
+          command: |
+            echo $ENV_FILE | base64 -di > .env
+            cat .env
+      - run:
+          name: Setup Path
+          command: |
+            echo export GOOGLE_API_KEY=${GOOGLE_API_KEY} >> $BASH_ENV
+      - run:
+          name: Setup Path
+          command: |
+            echo export AWS_ACCESS_KEY_ID=${AWS_KEY} >> $BASH_ENV
+      - run:
+          name: Setup Path
+          command: |
+            echo export AWS_SECRET_ACCESS_KEY=${AWS_SECRET} >> $BASH_ENV
+      - run: |
+          php --version
+          node --version
+          java --version
+          google-chrome --version
+      - run: sudo apt update -y
+      - run: |
+          # language-pack-ja単体だと何故か失敗するので、全てのlanugage-packをインストールする
+          sudo apt -qqy --no-install-recommends install -y locales-all &&
+          sudo locale-gen ja_JP.UTF-8 &&
+          sudo update-locale LANG=ja_JP.UTF-8 &&
+          sudo update-locale LANGUAGE="ja_JP:ja"
+      - run: |
+          # 日本語フォントをインストール
+          sudo apt -qqy --no-install-recommends install -y fonts-takao-gothic fonts-takao-mincho &&
+          sudo dpkg-reconfigure --frontend noninteractive locales &&
+          sudo fc-cache -fv
+
+      # Install PHP Extension
+      - run: sudo apt-get update --allow-releaseinfo-change
+      - run: 
+          name: Update apt-get
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y libpng-dev
+      - run:   
+          name: Install php-gd
+          command: |
+            sudo chmod -R 0777 /usr/src/
+            docker-php-ext-configure gd --with-freetype --with-jpeg
+      # docker-php-ext-install -j$(      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "composer.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: composer install -n --prefer-dist
+
+      - save_cache:
+          paths:
+            - ./vendor
+          key: v1-dependencies-{{ checksum "composer.json" }}
+      - run: php artisan cache:clear
+      - run: php artisan config:clear
+      - run: php artisan config:cache
+      - run: php artisan view:cache
+      - run: php artisan migrate
+      - run: php artisan db:seed
+
+      #circleCIのchromeは72なので、合わせる
+      - run: php artisan dusk:chrome-driver 114
+      # - run: php artisan dusk:update --detect
+
+      - run: php artisan storage:link
+      - run: sudo chmod -R 0777 storage
+      - run: mkdir storage/app/images && mkdir storage/app/images/after
+      - run: mkdir storage/app/public/testing
+      - run: 
+          name: image download
+          command: |
+              cd storage/app/public/testing
+              wget https://shibancyu-testing.s3.ap-northeast-1.amazonaws.com/images/before/123/before1.jpg
+              wget https://shibancyu-testing.s3.ap-northeast-1.amazonaws.com/images/before/123/before2.jpg
+              wget https://shibancyu-testing.s3.ap-northeast-1.amazonaws.com/images/before/123/before3.jpg
+              wget https://shibancyu-testing.s3.ap-northeast-1.amazonaws.com/images/after/123/after1.jpg
+              wget https://shibancyu-testing.s3.ap-northeast-1.amazonaws.com/images/after/123/after2.jpg
+              wget https://shibancyu-testing.s3.ap-northeast-1.amazonaws.com/images/after/123/after3.jpg
+
+      # API用テスト
+      - run: php ./vendor/bin/phpunit
+      - run:
+          name: Start Chrome Driver
+          command: ./vendor/laravel/dusk/bin/chromedriver-linux
+          background: true
+      - run:
+          name: Run Laravel Server
+          command: php artisan serve
+          background: true
+      - run:
+          name: Run Laravel Dusk Tests
+          command: php artisan dusk
+      - store_artifacts:
+          path: ./tests/Browser/screenshots
+          destination: screenshots
+  develop_deploy:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout
+      # CircleCIに登録した秘密鍵を呼び出す。
+      - add_ssh_keys:
+          fingerprints:
+            - "b7:35:a6:4e:9b:0d:6d:d4:78:1e:9a:97:2a:66:6b:be"
+      - run: pwd
+      - run: ssh ${USER_NAME}@${HOST_NAME} 'pwd && cd /var/www/html/develop && pwd && git checkout -f develop && git pull origin develop && php artisan migrate && sudo chmod 0777 -R /var/www/html/develop/vendor/dompdf && sudo chmod 0777 -R /var/www/html/develop/storage && composer dump-autoload'
+  production_deploy:
+    machine:
+      # image: circleci/classic:edge
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout
+      # CircleCIに登録した秘密鍵を呼び出す。
+      - add_ssh_keys:
+          fingerprints:
+            - "b7:35:a6:4e:9b:0d:6d:d4:78:1e:9a:97:2a:66:6b:be"
+      - run: pwd
+      - run: ssh ${USER_NAME}@${HOST_NAME} 'pwd && cd /var/www/html/production && pwd && git checkout -f master && git pull origin master && php artisan migrate --force && sudo chmod 0777 -R /var/www/html/production/vendor/dompdf && sudo chmod 0777 -R /var/www/html/production/storage && composer dump-autoload'
+
+# テストが成功した場合のみ、deployを実行
+workflows:
+  version: 2.1
+  build_and_deploy:
+    jobs:
+      - build
+      - develop_deploy:
+          requires:
+            - build
+          # developブランチがpushされた場合のみdeployするようにする。
+          filters:
+            branches:
+              only: develop
+      - production_deploy:
+          requires:
+            - build
+          # masterブランチがpushされた場合のみdeployするようにする。
+          filters:
+            branches:
+              only: master

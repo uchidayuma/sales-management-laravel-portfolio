@@ -1,0 +1,119 @@
+$PATH_IMG: "/images";
+$BREACKPOINT_PC: 1024px;
+
+//レスポンシブ
+@mixin max-screen($breakPoint) {
+    @media screen and (max-width: $breakPoint) {
+        @content;
+    }
+}
+@mixin min-screen($breakPoint) {
+    @media screen and (min-width: $breakPoint) {
+        @content;
+    }
+}
+@mixin screen($breakPoint_min, $breakPoint_max) {
+    @media screen and (min-width: $breakPoint_min) and (max-width: $breakPoint_max) {
+        @content;
+    }
+}
+
+//要素の中身全部をセンタリング
+@mixin all-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+//子要素だけセンタリング
+@mixin child-center {
+    　　text-align: center;
+    　　position: relative;
+    　　top: 50%;
+    　　-webkit-transform: translateY(-50%);
+    　　-ms-transform: translateY(-50%);
+    　　transform: translateY(-50%);
+}
+//長文テキストを枠に収める処理（paddingは別途つけてちょw）
+@mixin truncate($width: 100%) {
+    　　width: $width;
+    　　max-width: 100%;
+    　　display: block;
+    　　overflow: hidden;
+    　　white-space: nowrap;
+    　　text-overflow: ellipsis;
+}
+
+//背景画像
+@mixin background-image($fileName) {
+    background-image: url($PATH_IMG+$fileName);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    @content;
+}
+
+//グラデーション
+@mixin gradient($startColor, $endColor, $orientation: ttob) {
+    background: $startColor;
+    @if $orientation == ttob {
+        background: -webkit-linear-gradient(
+            top,
+            #{$startColor} 0%,
+            #{$endColor} 100%
+        );
+        background: linear-gradient(
+            to bottom,
+            #{$startColor} 0%,
+            #{$endColor} 100%
+        );
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$startColor}', endColorstr=' #{$endColor}', GradientType=0);
+    } @else if $orientation == ltor {
+        background: -webkit-linear-gradient(
+            right,
+            #{$startColor} 0%,
+            #{$endColor} 100%
+        );
+        background: linear-gradient(
+            to right,
+            #{$startColor} 0%,
+            #{$endColor} 100%
+        );
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$startColor}', endColorstr=' #{$endColor}', GradientType=1);
+    }
+}
+
+@mixin triangle($direction, $width, $height, $color) {
+    // 引数directionは top,left,right, bottomから選択
+    width: 0;
+    height: 0;
+    border-style: solid;
+    $valWidth: $width / 2;
+    $valHeight: $height / 2;
+    @if ($direction == top) {
+        border-width: 0 $valWidth $height $valWidth;
+        border-color: transparent transparent $color transparent;
+    } @else if ($direction == left) {
+        border-width: $valHeight $width $valHeight 0;
+        border-color: transparent $color transparent transparent;
+    } @else if ($direction == right) {
+        border-width: $valHeight 0 $valHeight $width;
+        border-color: transparent transparent transparent $color;
+    } @else if ($direction == bottom) {
+        border-width: $height $valWidth 0 $valWidth;
+        border-color: $color transparent transparent transparent;
+    }
+}
+
+//ゆっくりリンク
+@mixin hover($flag: true) {
+    @include min-screen(900px) {
+        transition: 0.2s;
+        &:hover {
+            transition: 0.3s;
+            @if $flag == true {
+                opacity: 0.5;
+            }
+            @content;
+        }
+    }
+}

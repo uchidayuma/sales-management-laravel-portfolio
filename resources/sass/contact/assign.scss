@@ -1,0 +1,86 @@
+@import "../variables";
+@import "../utility.scss";
+
+article.article {
+    padding-bottom: 20px !important;
+}
+/*========= MAPの中==========*/
+.fc-labels {
+    color: $black;
+    font-weight: bold;
+    font-size: 1.3rem;
+    text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, -1px 1px 0 #fff,
+        1px -1px 0 #fff, 0px 1px 0 #fff, 0-1px 0 #fff, -1px 0 0 #fff,
+        1px 0 0 #fff;
+}
+.info_content {
+    &__para {
+        color: $light-black;
+        font-weight: bold;
+        font-size: 1rem;
+    }
+}
+/*========= MAPの中ここまで==========*/
+
+.table-wrapper {
+    max-height: 13rem;
+    overflow-y: scroll;
+}
+.recommend-table {
+    background-color: $primary;
+    cursor: pointer;
+    & td {
+        color: $white;
+    }
+}
+.franchises-table {
+    background-color: #efeeef;
+    cursor: pointer;
+    width: 100%;
+    &__row:hover {
+        color: $white;
+        background-color: $black;
+    }
+}
+.assign-table {
+    & td {
+        padding: 0.5rem;
+        font-weight: bold;
+    }
+    &__name {
+        width: 20%;
+    }
+    &__address {
+        width: 20%;
+    }
+    &__area {
+        width: 20%;
+    }
+    &__distance {
+        width: 12%;
+    }
+    &__year {
+        width: 15%;
+    }
+    &__progress {
+        width: 13%;
+    }
+}
+.btn-submit {
+    margin-left: auto;
+    width: 10rem;
+    display: block;
+}
+// google mapに被せるので、例外的にid
+#js-selected-fc {
+    position: relative;
+    top: -70px;
+    width: 93%;
+}
+#map_wrapper_div {
+    height: 45vh;
+}
+#map_tuts {
+    width: 100%;
+    height: 100%;
+}

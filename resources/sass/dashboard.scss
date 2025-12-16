@@ -1,0 +1,37 @@
+@charset "UTF-8";
+@import "./variables";
+@import "./utility";
+
+article {
+    padding: 20px;
+}
+.card .card-body {
+    border: none;
+}
+.tab-content {
+    padding: 5px;
+}
+.nav-link {
+    opacity: 0.4;
+}
+.nav-tabs .nav-link.active {
+    opacity: 1;
+}
+.open-trigger {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 1.5rem;
+    color: #999;
+}
+
+.chart-label {
+    position: absolute;
+    top: 110px;
+    right: 15px;
+    background: white;
+    z-index: 3;
+}
+.contact-type-label {
+    max-width: 75px;
+}

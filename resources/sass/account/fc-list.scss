@@ -1,0 +1,99 @@
+@import "../variables";
+@import "../utility.scss";
+//FC一覧ページのデザイン
+
+.search-icon {
+    font-size: 1.5rem;
+    justify-content: baseline;
+}
+.common-form {
+    &__span {
+        font-size: 1.2rem;
+    }
+}
+.fc-deleted {
+    text-decoration: line-through;
+}
+.opacity5 {
+    opacity: 0.5;
+}
+.table-stripes-row {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: $table-gray-light;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    th {
+        padding: 1rem 0.5rem;
+    }
+    td {
+        padding-left: 0.5rem;
+    }
+    //table ヘッダー部分
+    &-thead {
+        margin: 3rem;
+        th {
+            background-color: $gray;
+        }
+        &__th-span {
+            padding: 0 2rem;
+        }
+    }
+    //table ボディー部分
+    &-tbody__td {
+        padding: 0.3rem 0;
+    }
+    &-tbody__th-span {
+        padding: 0 2rem;
+    }
+    tr:nth-child(odd) {
+        background-color: $table-aqua-light;
+    }
+    tr:nth-child(even) {
+        background-color: $table-gray-light;
+    }
+}
+
+.common-table-stripes-column {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: $table-gray-light;
+    font-size: 1rem;
+    //必須表示
+    &__span {
+        color: $red;
+        text-align: right;
+    }
+    
+    td {
+        padding-left: 1rem;
+    }
+    th {
+        width: auto !important;
+    }
+    
+}
+.common-table-stripes-column-thead{
+    th {
+        background-color: $gray !important;
+    }
+}
+.common-table-stripes-column-tbody{
+    //テーブルにストライプ柄をつけている部分
+    tr:nth-child(odd) {
+        background-color: $table-aqua-light;
+        //th部分だけ濃い目に表示するため
+        th {
+            background-color: $table-aqua;
+        }
+    }
+    tr:nth-child(even) {
+        background-color: $table-gray-light;
+        //th部分だけ濃い目に表示するため
+        th {
+            background-color: $table-gray;
+        }
+    }
+}

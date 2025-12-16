@@ -1,0 +1,92 @@
+@import "variables";
+@import "bootstrap";
+@import "fontawesome/fontawesome";
+@import "fontawesome/solid";
+@import "fontawesome/regular";
+@import "utility";
+
+.form-control::placeholder,
+input::placeholder {
+    color: #bbb;
+}
+.alert ul {
+    margin-bottom: 0;
+}
+.alert-top {
+    position: absolute;
+    top: 100px;
+    z-index: 9999;
+    width: 70%;
+    display: none;
+    text-align: center;
+    margin-bottom: 0;
+    padding: 15px;
+}
+
+.common-alert {
+    position: absolute;
+    top: 100px;
+    z-index: 9999;
+    width: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    margin-bottom: 0;
+    padding: 15px;
+}
+
+.btn-info {
+    background-color: #669ccd;
+    border-color: #669ccd;
+    color: $white !important;
+    &:hover {
+        background-color: #a2c0e1;
+    }
+}
+.btn-primary {
+    background-color: #3657a6;
+    border-color: #3657a6;
+    color: $white !important;
+    &:hover {
+        background-color: #5382bd;
+    }
+}
+.btn-success {
+    background-color: #48b33b;
+    border-color: #48b33b;
+    color: $white !important;
+    &:hover {
+        background-color: #92c67b;
+    }
+}
+.btn-warning {
+    background-color: #e85120;
+    border-color: #e85120;
+    color: $white !important;
+    &:hover {
+        background-color: #ec9a70;
+    }
+}
+
+.article {
+    background-color: $main-column;
+}
+
+.active-btn {
+    background-color: $black;
+}
+
+.alert-tr {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    border: 3px solid #721c24;
+    &__label {
+        margin-left: 8px;
+        top: 0;
+        left: 0;
+        background-color: $black;
+        color: $white !important;
+        padding: 5px;
+        font-size: 0.9rem;
+    }
+}

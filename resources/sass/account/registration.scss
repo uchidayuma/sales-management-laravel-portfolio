@@ -1,0 +1,57 @@
+@import "../variables";
+@import "../utility.scss";
+
+.user-create-pankuzu {
+    &__icon {
+        color: $info;
+        padding-right: 0.3rem;
+    }
+    &__span {
+        color: $info;
+    }
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding-bottom: 0.5rem;
+}
+.common-table-stripes-column {
+    &__input {
+        width: 17rem;
+    }
+}
+.common-table-stripes-column__td {
+    padding: 10px;
+}
+.common-table-stripes__td {
+    padding: 10px;
+}
+.common-table-stripes__th {
+    position: relative;
+}
+.buttons {
+    margin-top: 2rem;
+    text-align: right;
+}
+
+.form-control--p {
+    font-size: 1.2rem;
+    height: 3rem;
+    line-height: 2.75;
+}
+
+.staff2,
+.staff3 {
+    display: none;
+}
+.staff-hide,
+.infomation-hide {
+    color: $red;
+    font-size: 2rem;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+}
+.infomation2,
+.infomation3{
+    display: none;
+}

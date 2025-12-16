@@ -1,0 +1,9 @@
+@import "../variables";
+@import "../utility.scss";
+
+th.check-th {
+    padding-right: 0;
+}
+.check-td {
+    min-width: 4rem;
+}

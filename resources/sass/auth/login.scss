@@ -1,0 +1,62 @@
+@import "../variables";
+@import "../utility.scss";
+//ログインページのデザイン
+
+.login-area-form{
+    width: 30rem;
+    background-color: #ffffff8e;
+
+    input {
+        border: none;
+        outline: none;
+        width: 85%;
+    }
+    &__input{
+        background-color: #ffffff;
+        text-align: center;
+    }
+    &__input-icon{
+        background-color: $info;
+        color: #ffffff;
+    }
+    &__logo-img{
+        width: 10rem;
+    }
+}
+
+.width-button {
+    width: 26px !important;
+}
+
+.password-fix {
+    font-size: 1.2rem;
+    
+    @include mq-down(sm) { 
+        font-size: 1rem;
+    }
+    display : inline-block;
+    color : $info;   
+    letter-spacing : 2px;
+    text-shadow:
+    white 2px 0px,  white -2px 0px,
+    white 0px -2px, white 0px 2px,
+    white 2px 2px , white -2px 2px,
+    white 2px -2px, white -2px -2px,
+    white 1px 2px,  white -1px 2px,
+    white 1px -2px, white -1px -2px,
+    white 2px 1px,  white -2px 1px,
+    white 2px -1px, white -2px -1px;
+}
+
+// スマホ用のCSS
+@include mq-down(sm) { 
+    .container{
+        padding: 0;
+    }
+    .login-area-form{
+        width: 100%;
+        input {
+            width: 100%;
+        }
+    }
+}

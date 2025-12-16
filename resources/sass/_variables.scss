@@ -1,0 +1,69 @@
+// Body
+$body-bg: #f8fafc;
+
+// Typography
+$font-family-sans-serif: "Nunito", sans-serif;
+$font-size-base: 0.9rem;
+$line-height-base: 1.6;
+
+$fa-font-path: "./webfonts";
+/*================
+  * colors
+================*/
+$white: #fff;
+$info: #669ccd;
+$primary: #3657a6;
+$black: #000;
+$nomal-black: #333;
+$light-black: #666;
+$heavy-gray: #777;
+$gray: #999;
+$light-gray: #ccc;
+$red: #dc0011;
+$light-blue: #e2e6ea;
+$primary-blue: #1c719a;
+$main-column: #dbdbdb;
+//テーブルcolor
+$table-aqua: #b0d2f4;
+$table-aqua-light: #d3e1f0;
+$table-gray: #e8e7e7;
+$table-gray-light: #f5f5f5;
+
+$light-yellow: #fafaa5;
+
+$gold: #f0c81d;
+$silver: #c3c3c3;
+$copper: #fa9b4a;
+
+$accent-green: #59ca4a;
+
+// 今後使いそうだったのでスマホの関連の定義詳細は下のリンクから
+// https://www.tam-tam.co.jp/tipsnote/html_css/post10708.html
+// min-width
+$breakpoint-up: (
+  'sm': 'screen and (min-width: 576px)',
+  'md': 'screen and (min-width: 768px)',
+  'lg': 'screen and (min-width: 992px)',
+  'xl': 'screen and (min-width: 1200px)',
+) !default;
+
+// max-width
+$breakpoint-down: (
+  'sm': 'screen and (max-width: 575px)',
+  'md': 'screen and (max-width: 767px)',
+  'lg': 'screen and (max-width: 991px)',
+  'xl': 'screen and (max-width: 1199px)',
+) !default;
+
+// @mixinの定義
+@mixin mq-up($breakpoint: md) {
+  @media #{map-get($breakpoint-up, $breakpoint)} {
+    @content;
+  }
+}
+
+@mixin mq-down($breakpoint: md) {
+  @media #{map-get($breakpoint-down, $breakpoint)} {
+    @content;
+  }
+}
