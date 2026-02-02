@@ -54,7 +54,7 @@
       </div>
       <div class="d-none d-sm-block">
         <a href="{{ route('dashboard') }}" class="header-left flex">
-          <img class="header-left__shintou-logo" src="{{ asset('images/logo.jpg') }}" alt="logo" />
+          <!-- <img class="header-left__shintou-logo" src="{{ asset('images/logo.jpg') }}" alt="logo" /> -->
           <h1 class="header-left__title shintou-logo">サンプルFC管理システム</h1>
         </a>
       </div>

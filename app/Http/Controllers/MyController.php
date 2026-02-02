@@ -22,7 +22,7 @@ class MyController extends Controller
 
     public function __construct()
     {
-        $this->breadcrumbs = new \Creitive\Breadcrumbs\Breadcrumbs();
+        $this->breadcrumbs = new \App\Services\Breadcrumbs();
         $this->breadcrumbs->setDivider('>');
 
         //全コントローラーに現ログインユーザー情報を渡す

@@ -5,15 +5,15 @@
 @endsection
 
 @section('content')
-<div class="d-sm-flex justify-content-sm-center">
-    <div>
+<div class="d-sm-flex justify-content-sm-center mt-5">
+    <div class="text-center">
         <form method="POST" action="{{ route('login') }}" class="login-area-form py-3 px-0 px-sm-5 rounded">
             
             @csrf
             <!-- logo画像 -->
-            <div class="login-area-form__logo p-3 text-center">
+            <!-- <div class="login-area-form__logo p-3 text-center">
                 <img class="login-area-form__logo-img" src="{{ asset('images/logo.jpg') }}" alt="logo"/>
-            </div>
+            </div> -->
             <!-- ID入力 -->
             <div class="login-area-form__input p-2 m-2 rounded">
                 <i class="far fa-user login-area-form__input-icon mr-1 mr-sm-3 p-2 rounded d-none d-sm-inline"></i>

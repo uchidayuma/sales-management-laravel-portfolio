@@ -102,98 +102,64 @@ The system features a robust database design with **47+ tables** including:
 
 ## 🔧 Installation & Setup
 
-### Option A: Docker development environment (recommended)
-The repository ships with a complete Docker Compose stack so that anyone can run the project without installing PHP, MySQL, or Node locally.
+### Laravel Sail (Docker) Environment
+
+This project uses Laravel Sail for a simple, portable development environment.
 
 **Prerequisites**
-- Docker Desktop (or Docker Engine + Docker Compose)
+- Docker Desktop
+- PHP & Composer (locally) OR use the `sail` alias if PHP is not installed locally.
 
-**Steps**
-1. **Clone the repository**
+**Installation Steps**
+
+1.  **Clone the repository**
     ```bash
     git clone <repository-url>
-    cd sales-management
+    cd sales-management-laravel
     ```
-2. **Create your environment file**
-    ```bash
-    cp .env.example .env
-    ```
-3. **Boot the containers**
-    ```bash
-    docker compose up -d --build
-    ```
-4. **Install PHP dependencies inside the app container**
-    ```bash
-    docker compose exec app composer install
-    ```
-5. **Install Node dependencies and build the frontend**
-    ```bash
-    docker compose exec app npm install
-    docker compose exec app npm run dev
-    ```
-6. **Generate the application key and run the migrations**
-    ```bash
-    docker compose exec app php artisan key:generate
-    docker compose exec app php artisan migrate --seed
-    ```
-
-The application is now available at `http://localhost:8080` (change the host port by exporting `APP_PORT` before running Docker Compose). MySQL is exposed on port `3306` (override with `FORWARD_DB_PORT`) and Redis on `6379` (`FORWARD_REDIS_PORT`). To stop everything run `docker compose down`; add `-v` if you also want to clear the database volume.
-
-### Option B: Manual setup (no Docker)
-
-**Prerequisites**
-- PHP >= 8.0
-- Composer
-- MySQL >= 5.7
-- Node.js & NPM
-
-**Steps**
-1. **Clone the repository**
-    ```bash
-    git clone <repository-url>
-    cd sales-management
-    ```
-2. **Install PHP dependencies**
+2.  **Install Dependencies**
     ```bash
     composer install
     ```
-3. **Install Node dependencies**
-    ```bash
-    npm install
-    ```
-4. **Environment configuration**
+3.  **Configure Environment**
     ```bash
     cp .env.example .env
-    php artisan key:generate
+    # Sail uses .env variables to configure Docker containers
     ```
-5. **Configure database**  
-    Edit `.env` file with your database credentials:
-    ```
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=your_database
-    DB_USERNAME=your_username
-    DB_PASSWORD=your_password
-    ```
-6. **Run migrations**
+4.  **Start Sail**
     ```bash
-    php artisan migrate
+    ./vendor/bin/sail up -d
     ```
-7. **Seed database (optional)**
+5.  **Setup Application**
     ```bash
-    php artisan db:seed
+    ./vendor/bin/sail artisan key:generate
+    ./vendor/bin/sail artisan migrate:fresh --seed
     ```
-8. **Build frontend assets**
+6.  **Build Frontend**
     ```bash
-    npm run dev
-    ```
-9. **Start development server**
-    ```bash
-    php artisan serve
+    ./vendor/bin/sail npm install
+    ./vendor/bin/sail npm run dev
     ```
 
-Visit: `http://localhost:8000`
+**Accessing the Application**
+
+-   **Web App**: `http://localhost`
+-   **Mailpit** (Email Testing): `http://localhost:8025`
+-   **MySQL**: Port `3306`
+-   **Redis**: Port `6379`
+
+### Default Login Credentials
+
+The `migrate:fresh --seed` command sets up the following test users.
+**All passwords are:** `password`
+
+| User Type | Email | Password |
+| :--- | :--- | :--- |
+| **Admin (本部)** | `admin@example.com` | `password` |
+| **FC (店舗)** | `user2@example.com` | `password` |
+| **FC (その他)** | `user3@example.com` | `password` |
+
+*Note: For more users, check `database/seeds/UsersTableSeeder.php`.*
 
 ## 📁 Project Structure
 

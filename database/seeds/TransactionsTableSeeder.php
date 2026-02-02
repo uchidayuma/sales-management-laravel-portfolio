@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TransactionsTableSeeder extends Seeder
 {
-  /**
-   * Run the database seeds.
-   */
+    /**
+     * Run the database seeds.
+     */
   public function run()
   {
     DB::table('transactions')->truncate();

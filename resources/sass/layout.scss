@@ -19,12 +19,13 @@ $py4__height: 82vh;
 }
 // ヘッダー・フッター・サイドバーなどはここ
 body {
-    background-image: url("../images/shintou-background.png");
-    background-size: cover;
-    @include mq-down(sm) { 
-        background-size: auto;
-        background-position: left 35% top 10%;
-    }
+    background-color: $background-color__gray;
+    // background-image: url("../images/shintou-background.png");
+    // background-size: cover;
+    // @include mq-down(sm) { 
+    //     background-size: auto;
+    //     background-position: left 35% top 10%;
+    // }
 }
 #app {
     margin: 1vh;

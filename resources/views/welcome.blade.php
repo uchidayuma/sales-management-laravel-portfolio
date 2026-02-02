@@ -7,6 +7,61 @@
 
 @section('javascript')
 <script src="{{ asset('js/dashboard/admin.js') }}" defer></script>
+@if(isAdmin())
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        var newContacts = {!! json_encode($completeArray, JSON_HEX_TAG) !!};
+        if(document.getElementById('myChart')){
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'],
+                    datasets: [{
+                        label: '新規お問い合わせ件数',
+                        data: newContacts,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        var newTransactions = {!! json_encode($completeTransactionArray, JSON_HEX_TAG) !!};
+        if(document.getElementById('myChart2')){
+            var ctx2 = document.getElementById('myChart2').getContext('2d');
+            var myChart2 = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'],
+                    datasets: [{
+                        label: '新規発注件数',
+                        data: newTransactions,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endif
 @endsection
 
 @section('content')
@@ -20,10 +75,10 @@
   <div class="card w70 p0" style="margin:5px; border:5px;">
     <ul class="nav nav-tabs nav-justified" id="pills-tab" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active btn-primary f10" id="pills-home-tab" data-toggle="pill" href="#pills-visit" role="tab" aria-controls="pills-home" aria-selected="true">訪問見積もり<br>FC未連絡リスト</a>
+        <a class="nav-link btn-primary f10" id="pills-home-tab" data-toggle="pill" href="#pills-visit" role="tab" aria-controls="pills-home" aria-selected="true">訪問見積もり<br>FC未連絡リスト</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link btn-info f10" id="pills-profile-tab" data-toggle="pill" href="#pills-drow" role="tab" aria-controls="pills-profile" aria-selected="false">図面見積もり<br>FC未連絡リスト</a>
+        <a class="nav-link active btn-info f10" id="pills-profile-tab" data-toggle="pill" href="#pills-drow" role="tab" aria-controls="pills-profile" aria-selected="false">図面見積もり<br>FC未連絡リスト</a>
       </li>
       <li class="nav-item">
         <a class="nav-link btn-warning f10" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">部材発注<br>未発送リスト</a>
@@ -41,7 +96,7 @@
 
     <div class="collapse show" id="collapseContactList">
       <div class="tab-content" id="pills-tabContent">
-        <div class="tab-pane fade show active" id="pills-visit" role="tabpanel" aria-labelledby="pills-home-tab">
+        <div class="tab-pane fade" id="pills-visit" role="tabpanel" aria-labelledby="pills-home-tab">
             <table class="common-table-stripes-row text-left f10">
               <thead class="common-table-stripes-row-thead f08">
                 <tr>
@@ -67,7 +122,7 @@
               </tbody>
             </table>
         </div> <!-- tab 1つめ -->
-        <div class="tab-pane fade" id="pills-drow" role="tabpanel" aria-labelledby="pills-profile-tab">
+        <div class="tab-pane fade show active" id="pills-drow" role="tabpanel" aria-labelledby="pills-profile-tab">
             <table class="common-table-stripes-row">
               <thead class="common-table-stripes-row-thead f08">
                 <tr>
@@ -397,59 +452,4 @@
 </div>
 <!-- <div class="flex-center position-ref full-height">
   <div class="content"> の閉じタグ-->
-@if(isAdmin())
-<!-- チャートJS -->
-  <script>
-      var newContacts = {!! json_encode($completeArray, JSON_HEX_TAG) !!};
-              var ctx = document.getElementById('myChart').getContext('2d');
-              var myChart = new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                      labels: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'],
-                      //labels: ['1','5','10','15','20','25','31'],
-                      datasets: [{
-                          label: '新規お問い合わせ件数',
-                          //data: [12, 19, 3, 5, 2, 3],
-                          data: newContacts,
-                          fill: false,
-                      }]
-                  },
-                  options: {
-                      scales: {
-                          yAxes: [{
-                              ticks: {
-                                  beginAtZero: true
-                              }
-                          }]
-                      }
-                  }
-              });
-  </script>
-  <script>
-      var newTransactions = {!! json_encode($completeTransactionArray, JSON_HEX_TAG) !!};
-      var ctx = document.getElementById('myChart2').getContext('2d');
-      var myChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-              labels: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'],
-              //labels: ['1','5','10','15','20','25','31'],
-              datasets: [{
-                  label: '新規発注件数',
-                  //data: [12, 19, 3, 5, 2, 3],
-                  data: newTransactions,
-                  fill: false,
-              }]
-          },
-          options: {
-              scales: {
-                  yAxes: [{
-                      ticks: {
-                          beginAtZero: true
-                      }
-                  }]
-              },
-          }
-      });
-  </script>
-@endif
 @endsection
