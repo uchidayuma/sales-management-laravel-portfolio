@@ -17,7 +17,7 @@ class UsersTableSeeder extends Seeder
         \DB::table('users')->insert([
             0 => [
                 'id' => 1,
-                'name' => '管理かえる',
+                'name' => '管理者',
                 'allow_email' => 1,
                 'email' => 'user1@example.com',
                 'email2' => null,
@@ -125,6 +125,7 @@ class UsersTableSeeder extends Seeder
                 'account_infomation2' => 'サンプル銀行 第二支店 口座情報',
                 'account_infomation3' => 'サンプル銀行 第三支店 口座情報',
             ],
+            /*
             2 => [
                 'id' => 3,
                 'name' => 'FCイノベーションサービス',
@@ -7496,6 +7497,7 @@ class UsersTableSeeder extends Seeder
                 'account_infomation2' => null,
                 'account_infomation3' => null,
             ],
+            */
         ]);
     }
 }
