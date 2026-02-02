@@ -107,8 +107,8 @@ class ReportController extends MyController
                 $file = $inputs['c']['after_image'.$i];
                 $name = $file->getClientOriginalName();
                 $tmpPath = storage_path('app/images/after/').$name;
-                InterventionImage::make($file)
-                       ->resize(1000, null, function ($constraint) {$constraint->aspectRatio();})
+                InterventionImage::read($file)
+                       ->scale(width: 1000)
                        ->save($tmpPath, 60);
                 $path = Storage::disk("s3")->putFileAs('/images/after/'.$id, new File($tmpPath), $name, 'public');
                 $pathExplodes = explode('/', $path);
