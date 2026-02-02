@@ -284,7 +284,7 @@ Route::group(['prefix' => 'feature'], function () {
 //Route::get('/', 'HomeController@index')->name('home');
 //freee連携
 //Route::get('/invoices/sdk', 'TransactionController@createInvoice')->name('freeeInvoice');
-Route::get('/refreshtoken', 'TransactionController@refreshToken')->name('refreshToken');
+//Route::get('/refreshtoken', 'TransactionController@refreshToken')->name('refreshToken');
 //Route::get('/freeeauth', 'TransactionController@freeeAuth')->name('freeeAuth');
 
 Route::get('test/cronslack', 'SlackController@getNewContact');
@@ -293,6 +293,6 @@ Route::get('test/getdeliveryday/{day}', 'TransactionController@getDeliveryDays')
 Route::get('fc/password/reset/{token}', 'SetPasswordController@showPasswordResetForm')->name('fc.password.reset');
 Route::post('fc/password/reset', 'SetPasswordController@resetPassword')->name('fc.password.update');
 
-Route::get('/invoice/create/freee/post/{fromMonth?}/{toMonth?}', 'TransactionController@createInvoice')->name('createInvoice');
-Route::get('/invoice/create/freee/fc/post/{fcId}/{fromMonth}/{toMonth}', 'TransactionController@createSingleInvoice');
-Route::get('/invoice/create/freee/refresh', 'TransactionController@refreshToken')->name('refreshToken');
+//Route::get('/invoice/create/freee/post/{fromMonth?}/{toMonth?}', 'TransactionController@createInvoice')->name('createInvoice');
+//Route::get('/invoice/create/freee/fc/post/{fcId}/{fromMonth}/{toMonth}', 'TransactionController@createSingleInvoice');
+//Route::get('/invoice/create/freee/refresh', 'TransactionController@refreshToken')->name('refreshToken');

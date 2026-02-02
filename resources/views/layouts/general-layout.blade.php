@@ -8,8 +8,8 @@
   <title>{{ !empty($pagetitle) ? $pagetitle : config('app.name', 'サンプルFC管理アプリ') }}</title>
 
   <!-- Styles -->
-  <link href="{{ asset('styles/app.min.css') }}" rel="stylesheet">
-  <link href="{{ asset('styles/layout.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('styles/app.css') }}" rel="stylesheet">
+  <link href="{{ asset('styles/layout.css') }}" rel="stylesheet">
   @yield('css')
   
   <!-- Scripts -->

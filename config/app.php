@@ -174,7 +174,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Creitive\Breadcrumbs\BreadcrumbsServiceProvider::class,
+        Diglactic\Breadcrumbs\ServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         SocialiteProviders\Generators\GeneratorsServiceProvider::class,
         SocialiteProviders\Manager\ServiceProvider::class,
@@ -192,8 +192,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
-        App\Providers\FreeeServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class,
+        Intervention\Image\Laravel\ServiceProvider::class,
     ],
 
     /*
@@ -243,8 +242,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'Breadcrumbs' => Creitive\Breadcrumbs\Facades\Breadcrumbs::class,
+        'Breadcrumbs' => Diglactic\Breadcrumbs\Facades\Breadcrumbs::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
-        'InterventionImage' => Intervention\Image\Facades\Image::class,
+        'InterventionImage' => Intervention\Image\Laravel\Facades\Image::class,
     ],
 ];
