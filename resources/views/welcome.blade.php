@@ -108,10 +108,10 @@
                 </tr>
               </thead>
               <tbody>
-        @if(!empty($visitcustomers))
-            @foreach($visitcustomers as $c)
+        @if(!empty($visitCustomers))
+            @foreach($visitCustomers as $c)
                 <tr class='f09'>
-                  <td class="common-table-stripes-row-tbody__td"><a href="{{ route('contact.show', ['id' => $c->id]) }}" dusk="contact-detail">{{ displaycontactid($c) }}</a></td>
+                  <td class="common-table-stripes-row-tbody__td"><a href="{{ route('contact.show', ['id' => $c->id]) }}" dusk="contact-detail">{{ displayContactId($c) }}</a></td>
                   <td class="common-table-stripes-row-tbody__td">{{ date('m月d日', strtotime($c->created_at)) }}</td>
                   <td class="common-table-stripes-row-tbody__td"><img class="contact-type-label" src="/images/icons/contact-types/{{$c->contact_type_id}}.png"></td>
                   <td class="common-table-stripes-row-tbody__td">{{ customername($c) }}</td>

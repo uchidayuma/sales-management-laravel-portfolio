@@ -2,7 +2,7 @@
 
 ## 🎯 Project Overview
 
-A comprehensive **Sales Management System** built with **Laravel 9** for managing franchise operations, quotations, orders, and customer relationships. This enterprise-level application demonstrates full-stack PHP development capabilities with complex business logic implementation.
+A comprehensive **Sales Management System** built with **Laravel 11** for managing franchise operations, quotations, orders, and customer relationships. This enterprise-level application demonstrates full-stack PHP development capabilities with complex business logic implementation.
 
 ## 👨‍💻 About This Project
 
@@ -37,8 +37,8 @@ This is a **real-world production system** I developed and maintained as a full-
 ## 🛠 Technology Stack
 
 ### Backend
-- **PHP 8.0+** - Modern PHP with strict typing
-- **Laravel 9** - Elegant MVC framework
+- **PHP 8.2+** - Modern PHP with strict typing
+- **Laravel 11** - Elegant MVC framework
 - **MySQL** - Relational database
 - **Composer** - Dependency management
 
@@ -54,8 +54,7 @@ This is a **real-world production system** I developed and maintained as a full-
 - **PHPUnit** - Unit testing
 - **Laravel Dusk** - Browser testing
 
-### Third-party Integrations
-- **AWS S3** - Cloud file storage
+- **Intervention Image v3** - Image processing
 - **Freee Accounting API** - Accounting system integration
 - **Slack API** - Team notifications
 - **DomPDF** - PDF generation
