@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(wc:*)",
+      "Bash(xargs -I {} git push origin --delete {})",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}
