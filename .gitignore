@@ -16,6 +16,7 @@ public/transaction-pdftest.html
 .env.circleci
 .env.backup
 .phpunit.result.cache
+.tmp
 Homestead.json
 Homestead.yaml
 npm-debug.log
