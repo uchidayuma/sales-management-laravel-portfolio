@@ -9,7 +9,10 @@
       "Bash(wc:*)",
       "Bash(xargs -I {} git push origin --delete {})",
       "Bash(git remote add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)"
     ]
   }
 }
