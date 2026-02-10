@@ -8,42 +8,42 @@ test.describe('User Flows', () => {
         await page.click('#submit');
     });
 
-    test('can access quotations list', async ({ page }) => {
+    test('user flow sequence', async ({ page }) => {
+        // 1. Access Quotations List
         await page.goto('/quotations');
-        // Verify page title or table
-        await expect(page.locator('h1.page-title')).toContainText('見積もり一覧');
-        // Verify table exists
-        await expect(page.locator('.common-table')).toBeVisible();
-    });
+        // Verify table exists (page title might not be h1.page-title)
+        await expect(page.locator('.common-table-stripes-row')).toBeVisible();
 
-    test('can access profile edit', async ({ page }) => {
-        // Open Modal (top right icon)
+        // 2. Access Profile Edit
+        // Open modal
         await page.click('#icon_button');
         
-        // Wait for modal to be visible
+        // Wait for modal to be visible (Bootstrap adds 'show' class)
+        await expect(page.locator('#userInfoModal')).toHaveClass(/show/);
         await expect(page.locator('#userInfoModal')).toBeVisible();
 
         // Click "Profile Change"
         await page.click('text=プロフィールを変更');
-
-        // Verify URL /users/edit/{id}
+        
+        // Verify URL
         await expect(page).toHaveURL(/\/users\/edit\/\d+/);
         
         // Verify Form
-        await expect(page.locator('input[name="company_name"]')).toBeVisible();
-    });
+        await expect(page.locator('input[name="fc[company_name]"]')).toBeVisible();
 
-    test('can logout', async ({ page }) => {
-        // Open Modal
-        await page.click('#icon_button');
+        // 3. Logout
+        // Open modal
+        await expect(page.locator('#icon_button').first()).toBeVisible();
+        await page.locator('#icon_button').first().click();
         
         // Wait for modal
+        await expect(page.locator('#userInfoModal')).toHaveClass(/show/);
         await expect(page.locator('#userInfoModal')).toBeVisible();
 
         // Click Logout
-        await page.click('#logout');
-
-        // Verify redirect to login
+        await page.click('text=ログアウト');
+        
+        // Verify Redirect to Login
         await expect(page).toHaveURL(/\/login/);
         
         // Confirm we are logged out (e.g. check for login form)

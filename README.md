@@ -188,9 +188,46 @@ Run unit tests:
 php artisan test
 ```
 
-Run browser tests:
+### Playwright E2E Tests
+
+This project uses **Playwright** for End-to-End (E2E) testing.
+
+**Prerequisites**
+
+- Node.js (Latest LTS version recommended)
+- NPM
+
+**Installation**
+
+1.  Install dependencies:
+    ```bash
+    npm install
+    # or
+    npm ci
+    ```
+
+2.  Install Playwright browsers:
+    ```bash
+    npx playwright install
+    ```
+
+**Running Tests**
+
+Run all E2E tests:
 ```bash
-php artisan dusk
+npx playwright test
+```
+
+Run specific test file:
+```bash
+npx playwright test tests/e2e/user_flow.spec.js
+```
+
+**Viewing Reports**
+
+View the HTML report of the last test run:
+```bash
+npx playwright show-report
 ```
 
 ## 📝 Code Quality
