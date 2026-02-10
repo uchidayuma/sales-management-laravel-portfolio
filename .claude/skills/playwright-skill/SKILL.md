@@ -1,6 +1,20 @@
 ---
 name: playwright-skill
-description: Playwrightによる完全なブラウザ自動化。開発サーバーを自動検出し、クリーンなテストスクリプトを/tmpに書き込みます。ページのテスト、フォームの入力、スクリーンショットの撮影、レスポンシブデザインの確認、UXの検証、ログインフローのテスト、リンクのチェック、あらゆるブラウザタスクの自動化に使用します。ユーザーがウェブサイトのテスト、ブラウザ操作の自動化、ウェブ機能の検証、またはあらゆるブラウザベースのテストを実行したい場合に使用してください。
+description: Laravel Sail環境用のPlaywrightブラウザ自動化スキル。http://localhost:80を固定ベースURLとし、routes/web.phpとresources/views/を事前解析してから正確なE2Eテストを作成します。テスト成功後はtests/e2e/に自動保存。ページのテスト、フォームの入力、スクリーンショットの撮影、レスポンシブデザインの確認、UXの検証、ログインフローのテスト、リンクのチェック、あらゆるブラウザタスクの自動化に使用します。
+priority: high
+trigger:
+    keywords:
+        - playwright
+        - "E2Eテスト"
+        - "自動テスト"
+        - "ブラウザテスト"
+allowed_tools:
+    - shell
+    - bash
+    - node
+    - read
+    - write
+    - edit
 ---
 
 **重要 - パス解決:**
@@ -12,36 +26,91 @@ description: Playwrightによる完全なブラウザ自動化。開発サーバ
 -   手動グローバル: `~/.claude/skills/playwright-skill`
 -   プロジェクト固有: `<project>/.claude/skills/playwright-skill`
 
-# Playwright ブラウザ自動化
+# Playwright ブラウザ自動化（Laravel Sail 環境専用）
 
-汎用ブラウザ自動化スキル。リクエストされたあらゆる自動化タスクに対し、カスタムの Playwright コードを記述し、ユニバーサルエグゼキュータを介して実行します。
+Laravel Sail 環境（http://localhost:80）専用のブラウザ自動化スキル。テスト前に必ずプロジェクト構造（routes/web.php、resources/views/）を事前解析し、実際の DOM 構造に基づいた正確な E2E テストを作成します。テスト成功後は tests/e2e/に自動保存します。
 
 **重要ワークフロー - 以下の手順に沿って実行してください:**
 
-1. **開発サーバーの自動検出** - ローカルホストのテストでは、常にサーバー検出を最初に実行してください:
+## 🔴 Laravel Sail 環境専用ルール（最優先事項）
 
-    ```bash
-    cd $SKILL_DIR && node -e "require('./lib/helpers').detectDevServers().then(servers => console.log(JSON.stringify(servers)))"
-    ```
+### 0. **前提条件**
 
-    - **サーバーが 1 つ見つかった場合**: 自動的に使用し、ユーザーに通知します
-    - **複数のサーバーが見つかった場合**: ユーザーにテストするサーバーを尋ねます
-    - **サーバーが見つからない場合**: URL を尋ねるか、開発サーバーの起動を支援することを申し出ます
+-   ログイン情報は、 README.md から取得してください。
 
-2. **/tmp にスクリプトを書き込む** - テストファイルをスキルディレクトリに書き込まず、常に `/tmp/playwright-test-*.js` を使用してください
+### 1. **ホストの固定 (Laravel Sail 環境)**
 
-3. **デフォルトで可視ブラウザを使用** - ユーザーが明示的にヘッドレスモードを要求しない限り、常に `headless: false` を使用してください
+-   テストのベース URL は **常に `http://localhost:80`** を使用してください
+-   Laravel Sail 環境で動作するため、開発サーバーの検出は**不要**です
+-   すべてのスクリプトで `const TARGET_URL = "http://localhost:80";` を使用してください
 
-4. **URL のパラメータ化** - 常にスクリプトの先頭で環境変数または定数を介して URL を設定可能にしてください
+### 2. **事前解析の徹底（テスト計画前の必須ステップ）**
 
-## 仕組み
+テストコードを書く前に、**必ず以下の順序で**プロジェクトの構造を解析してください：
+
+**ステップ 2.1: ルーティングの確認**
+
+```bash
+# プロジェクトルートの routes/web.php を読み取る
+Read ../../../routes/web.php
+```
+
+-   利用可能なパス（例: `/login`, `/dashboard`, `/products`）を特定
+-   ルート名、ミドルウェア、コントローラーアクションを確認
+
+**ステップ 2.2: ビューファイルの解析**
+
+```bash
+# 関連する Blade ファイルを読み取る
+Read ../../../resources/views/[対象ファイル].blade.php
+```
+
+-   フォーム要素の `id`, `name`, `class` 属性を特定
+-   ボタン、入力フィールド、セレクタを確認
+-   CSRF トークンフィールドの存在を確認
+
+**ステップ 2.3: テスト計画の策定**
+
+-   事前解析で得た情報を基に、正確なセレクタとパスを使用したテストコードを作成
+-   推測や仮定を避け、実際の DOM 構造に基づいたテストを実装
+
+### 3. **テストコードの永続化**
+
+テストが成功した場合、以下の手順で永続的に保存してください：
+
+**ステップ 3.1: テストディレクトリの確認**
+
+```bash
+# tests/e2e/ ディレクトリの存在を確認（なければ作成）
+Glob tests/e2e/**/*.js
+```
+
+**ステップ 3.2: テストファイルの保存**
+
+```bash
+# /tmp から tests/e2e/ に適切な名前でコピー
+# 例: login_test.js, product_create_test.js, dashboard_navigation_test.js
+Write ../../../tests/e2e/[適切な名前].js
+```
+
+-   ファイル名は機能を明確に表す命名規則を使用（例: `login_test.js`, `form_submission_test.js`）
+-   テストが成功したことをユーザーに報告し、保存先を明示
+
+## 🟢 一般的なワークフロー
+
+4. **/tmp にスクリプトを書き込む** - テストファイルをスキルディレクトリに書き込まず、常に `/tmp/playwright-test-*.js` を使用してください
+
+5. **デフォルトで可視ブラウザを使用** - ユーザーが明示的にヘッドレスモードを要求しない限り、常に `headless: false` を使用してください
+
+## 仕組み（Laravel Sail 環境）
 
 1. テスト/自動化したい内容を記述します
-2. 実行中の開発サーバーを自動検出します（外部サイトをテストする場合は URL を尋ねます）
+2. **プロジェクト構造を事前解析します**（routes/web.php と resources/views/ を読み取り）
 3. カスタムの Playwright コードを `/tmp/playwright-test-*.js` に書き込みます（プロジェクトを汚しません）
-4. `cd $SKILL_DIR && node run.js /tmp/playwright-test-*.js` を介して実行します
+4. `cd $SKILL_DIR && node run.js /tmp/playwright-test-*.js` を介して実行します（ベース URL: `http://localhost:80`）
 5. 結果はリアルタイムで表示され、デバッグのためにブラウザウィンドウが表示されます
-6. テストファイルは OS によって `/tmp` から自動的にクリーンアップされます
+6. **テストが成功したら、`tests/e2e/` に永続的に保存します**
+7. テストファイルは OS によって `/tmp` から自動的にクリーンアップされます
 
 ## セットアップ (初回のみ)
 
@@ -52,22 +121,26 @@ npm run setup
 
 これにより、Playwright と Chromium ブラウザがインストールされます。初回のみ必要です。
 
-## 実行パターン
+## 実行パターン（Laravel Sail 環境）
 
-**ステップ 1: 開発サーバーを検出します (ローカルホストのテスト用)**
+**ステップ 1: プロジェクト構造を事前解析（最優先）**
 
 ```bash
-cd $SKILL_DIR && node -e "require('./lib/helpers').detectDevServers().then(s => console.log(JSON.stringify(s)))"
+# ルーティングを確認
+Read ../../../routes/web.php
+
+# 関連するビューファイルを確認
+Read ../../../resources/views/[対象ファイル].blade.php
 ```
 
-**ステップ 2: URL パラメータを含むテストスクリプトを /tmp に書き込みます**
+**ステップ 2: 固定 URL でテストスクリプトを /tmp に書き込みます**
 
 ```javascript
 // /tmp/playwright-test-page.js
 const { chromium } = require("playwright");
 
-// パラメータ化されたURL (検出されたもの、またはユーザーが提供したもの)
-const TARGET_URL = "http://localhost:3001"; // <-- 自動検出、またはユーザーから
+// Laravel Sail環境の固定URL
+const TARGET_URL = "http://localhost:80";
 
 (async () => {
     const browser = await chromium.launch({ headless: false });
@@ -89,6 +162,13 @@ const TARGET_URL = "http://localhost:3001"; // <-- 自動検出、またはユ�
 cd $SKILL_DIR && node run.js /tmp/playwright-test-page.js
 ```
 
+**ステップ 4: テスト成功後、永続的に保存します**
+
+```bash
+# tests/e2e/ ディレクトリに適切な名前で保存
+Write ../../../tests/e2e/[機能名]_test.js
+```
+
 ## 一般的なパターン
 
 ### ページのテスト (複数ビューポート)
@@ -97,7 +177,7 @@ cd $SKILL_DIR && node run.js /tmp/playwright-test-page.js
 // /tmp/playwright-test-responsive.js
 const { chromium } = require("playwright");
 
-const TARGET_URL = "http://localhost:3001"; // 自動検出
+const TARGET_URL = "http://localhost:80"; // Laravel Sail環境固定
 
 (async () => {
     const browser = await chromium.launch({ headless: false, slowMo: 100 });
@@ -123,14 +203,16 @@ const TARGET_URL = "http://localhost:3001"; // 自動検出
 // /tmp/playwright-test-login.js
 const { chromium } = require("playwright");
 
-const TARGET_URL = "http://localhost:3001"; // 自動検出
+const TARGET_URL = "http://localhost:80"; // Laravel Sail環境固定
 
 (async () => {
     const browser = await chromium.launch({ headless: false });
     const page = await browser.newPage();
 
+    // 事前解析で確認したパスとセレクタを使用
     await page.goto(`${TARGET_URL}/login`);
 
+    // resources/views/auth/login.blade.php から特定した実際のセレクタを使用
     await page.fill('input[name="email"]', "test@example.com");
     await page.fill('input[name="password"]', "password123");
     await page.click('button[type="submit"]');
@@ -149,20 +231,23 @@ const TARGET_URL = "http://localhost:3001"; // 自動検出
 // /tmp/playwright-test-form.js
 const { chromium } = require("playwright");
 
-const TARGET_URL = "http://localhost:3001"; // 自動検出
+const TARGET_URL = "http://localhost:80"; // Laravel Sail環境固定
 
 (async () => {
     const browser = await chromium.launch({ headless: false, slowMo: 50 });
     const page = await browser.newPage();
 
+    // 事前に routes/web.php で /contact パスを確認
+    // 事前に resources/views/contact.blade.php でフォーム要素を確認
     await page.goto(`${TARGET_URL}/contact`);
 
+    // 実際のBlade テンプレートで確認したname属性を使用
     await page.fill('input[name="name"]', "John Doe");
     await page.fill('input[name="email"]', "john@example.com");
     await page.fill('textarea[name="message"]', "Test message");
     await page.click('button[type="submit"]');
 
-    // 送信を確認
+    // 送信を確認（Bladeファイルで確認した成功メッセージのセレクタを使用）
     await page.waitForSelector(".success-message");
     console.log("✅ フォームが正常に送信されました");
 
@@ -179,7 +264,7 @@ const { chromium } = require("playwright");
     const browser = await chromium.launch({ headless: false });
     const page = await browser.newPage();
 
-    await page.goto("http://localhost:3000");
+    await page.goto("http://localhost:80");
 
     const links = await page.locator('a[href^="http"]').all();
     const results = { working: 0, broken: [] };
@@ -240,7 +325,7 @@ const { chromium } = require("playwright");
 // /tmp/playwright-test-responsive-full.js
 const { chromium } = require("playwright");
 
-const TARGET_URL = "http://localhost:3001"; // 自動検出
+const TARGET_URL = "http://localhost:80"; // Laravel Sail環境固定
 
 (async () => {
     const browser = await chromium.launch({ headless: false });
@@ -281,11 +366,11 @@ const TARGET_URL = "http://localhost:3001"; // 自動検出
 ワンオフのクイックタスク用に、ファイルを作成せずにコードをインラインで実行できます：
 
 ```bash
-# Take a quick screenshot
+# Take a quick screenshot (Laravel Sail環境)
 cd $SKILL_DIR && node run.js "
 const browser = await chromium.launch({ headless: false });
 const page = await browser.newPage();
-await page.goto('http://localhost:3001');
+await page.goto('http://localhost:80');
 await page.screenshot({ path: '/tmp/quick-screenshot.png', fullPage: true });
 console.log('Screenshot saved');
 await browser.close();
@@ -381,12 +466,15 @@ const context = await browser.newContext(
 -   デバッグ技法
 -   CI/CD 統合
 
-## ヒント
+## ヒント（Laravel Sail 環境）
 
--   **重要：サーバーを最初に検出** - localhost テスト用のテストコードを書く前に、常に `detectDevServers()` を実行してください
+-   **🔴 最重要：事前解析を最初に実行** - テストコードを書く前に、常に `routes/web.php` と関連する `resources/views/` ファイルを読み取ってください
+-   **🔴 固定 URL** - 常に `const TARGET_URL = "http://localhost:80";` を使用してください（Laravel Sail 環境）
+-   **🔴 テストの永続化** - テスト成功後は必ず `tests/e2e/` に適切な名前で保存してください
 -   **カスタムヘッダー** - `PW_HEADER_NAME`/`PW_HEADER_VALUE` 環境変数を使用してバックエンドへの自動化トラフィックを識別します
--   **/tmp をテストファイルに使用** - `/tmp/playwright-test-*.js` に書き込み、スキルディレクトリやユーザーのプロジェクトには書き込まない
--   **URL をパラメータ化** - 検出/提供された URL をすべてのスクリプトの最上部の `TARGET_URL` 定数に入力します
+-   **/tmp をテストファイルに使用** - `/tmp/playwright-test-*.js` に書き込み、スキルディレクトリには書き込まない（成功後に tests/e2e/ に保存）
+-   **正確なセレクタ** - 事前解析で確認した実際の `id`、`name`、`class` 属性を使用し、推測を避ける
+-   **CSRF トークン** - Laravel のフォームには CSRF トークンが含まれていることを確認
 -   **デフォルト：ブラウザを表示** - ユーザーが明示的にヘッドレスモードを要求しない限り、常に `headless: false` を使用
 -   **ヘッドレスモード** - ユーザーが明確に「headless」または「background」実行を要求した場合のみ `headless: true` を使用
 -   **減速：** `slowMo: 100` を使用してアクションを見やすく、フォローしやすくします
@@ -411,43 +499,54 @@ cd $SKILL_DIR && npm run setup
 **要素が見つからない：**
 wait を追加：`await page.waitForSelector('.element', { timeout: 10000 })`
 
-## 使用例
+## 使用例（Laravel Sail 環境）
 
 ```
 ユーザー：「マーケティングページの見た目がいいか確認してください」
 
-Claude：複数のビューポートでマーケティングページをテストします。まず実行中のサーバーを検出させてください...
-[実行：detectDevServers()]
-[出力：Found server on port 3001]
-あなたの開発サーバーが http://localhost:3001 で実行されているのを見つけました
+Claude：複数のビューポートでマーケティングページをテストします。まずプロジェクト構造を確認させてください...
 
-[URLをパラメータ化してカスタム自動化スクリプトを /tmp/playwright-test-marketing.js に書き込む]
+[実行：Read routes/web.php]
+[出力：/marketing ルートを確認]
+
+[実行：Read resources/views/marketing.blade.php]
+[出力：ページ構造とセレクタを確認]
+
+Laravel Sail環境（http://localhost:80）でテストを実行します。
+
+[固定URLでカスタム自動化スクリプトを /tmp/playwright-test-marketing.js に書き込む]
 [実行：cd $SKILL_DIR && node run.js /tmp/playwright-test-marketing.js]
 [/tmp/ からのスクリーンショット付きの結果を表示]
+
+✅ テスト成功！tests/e2e/marketing_test.js に保存しました。
 ```
 
 ```
 ユーザー：「ログインが正しくリダイレクトされるか確認してください」
 
-Claude：ログインフローをテストします。まず実行中のサーバーを確認させてください...
-[実行：detectDevServers()]
-[出力：Found servers on ports 3000 and 3001]
-2つの開発サーバーを見つけました。どちらをテストしますか？
-- http://localhost:3000
-- http://localhost:3001
+Claude：ログインフローをテストします。まずプロジェクト構造を確認させてください...
 
-ユーザー：「3001を使ってください」
+[実行：Read routes/web.php]
+[出力：/login ルートとリダイレクト先を確認]
+
+[実行：Read resources/views/auth/login.blade.php]
+[出力：フォーム要素のname属性、id、セレクタを確認]
+
+実際のDOM構造に基づいてテストを作成します（http://localhost:80）。
 
 [ログイン自動化を /tmp/playwright-test-login.js に書き込む]
 [実行：cd $SKILL_DIR && node run.js /tmp/playwright-test-login.js]
 [レポート：✅ ログイン成功、/dashboard にリダイレクト]
+
+✅ テスト成功！tests/e2e/login_test.js に保存しました。
 ```
 
-## 注記
+## 注記（Laravel Sail 環境）
 
 -   各自動化はあなたの特定のリクエストのためにカスタム記述されます
 -   事前構築されたスクリプトに限定されません - あらゆるブラウザタスク可能
--   実行中の開発サーバーを自動検出してハードコードされた URL を排除
--   テストスクリプトは自動クリーンアップ用に `/tmp` に書き込まれます（雑然とした状態なし）
+-   **Laravel Sail 環境では常に `http://localhost:80` を使用**（開発サーバー検出は不要）
+-   **テスト前に必ず `routes/web.php` と `resources/views/` を解析**してセレクタを確認
+-   テストスクリプトは `/tmp` に書き込まれ、成功後は `tests/e2e/` に永続化
 -   `run.js` を介した適切なモジュール解決により、コードは確実に実行されます
 -   段階的開示 - 高度な機能が必要な場合のみ API_REFERENCE.md が読み込まれます
