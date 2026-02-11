@@ -15,7 +15,17 @@
       "Bash(gh pr diff:*)",
       "Bash(node -e:*)",
       "Bash(node run.js:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(python3:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:github.com)",
+      "mcp__mysql-db__mysql_query",
+      "Bash(docker ps:*)",
+      "Bash(mysql:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "mysql"
+  ],
+  "enableAllProjectMcpServers": true
 }
