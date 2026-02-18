@@ -21,11 +21,16 @@
       "WebFetch(domain:github.com)",
       "mcp__mysql-db__mysql_query",
       "Bash(docker ps:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(sort:*)",
+      "Bash(git rm:*)",
+      "Bash(git reflog expire:*)",
+      "Bash(git gc:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "mysql"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
