@@ -1,3 +1,23 @@
+resource "random_password" "db" {
+  length           = 20
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "aws_secretsmanager_secret" "db_password" {
+  name                    = "${local.name_prefix}/db-password"
+  recovery_window_in_days = 0
+
+  tags = {
+    Name = "${local.name_prefix}-db-password"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "db_password" {
+  secret_id     = aws_secretsmanager_secret.db_password.id
+  secret_string = random_password.db.result
+}
+
 resource "aws_db_subnet_group" "default" {
   name       = "${local.name_prefix}-db-subnet-group"
   subnet_ids = aws_subnet.private[*].id
@@ -16,7 +36,7 @@ resource "aws_db_instance" "default" {
   instance_class    = "db.t3.micro"
   db_name           = "sales_management"
   username          = var.db_username
-  password          = var.db_password
+  password          = random_password.db.result
   
   db_subnet_group_name   = aws_db_subnet_group.default.name
   vpc_security_group_ids = [aws_security_group.db.id]

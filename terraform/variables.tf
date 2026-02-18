@@ -28,12 +28,6 @@ variable "db_username" {
   default     = "admin"
 }
 
-variable "db_password" {
-  description = "Database master password"
-  type        = string
-  sensitive   = true
-}
-
 variable "app_image" {
   description = "Docker image for the application"
   type        = string
