@@ -31,3 +31,10 @@ public/css/common.min.css
 public/css/contact/unassigned-list.min.css
 playwright-report
 test-results
+
+# Terraform
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/terraform.tfvars
+terraform/*.tfplan
