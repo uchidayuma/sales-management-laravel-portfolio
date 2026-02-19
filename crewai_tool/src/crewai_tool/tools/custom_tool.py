@@ -1,3 +1,4 @@
+import os
 import subprocess
 from crewai.tools import BaseTool
 from typing import Type
@@ -5,67 +6,91 @@ from pydantic import BaseModel, Field
 
 
 # ─────────────────────────────────────────────
-# Git: ステージング → コミット → プッシュ
-# ブランチは @before_kickoff で作成済みのため、ここでは作らない
+# プロジェクト構造の一覧取得（重いディレクトリを除外）
+# DirectoryReadTool の代替。ファイルの中身は返さない。
 # ─────────────────────────────────────────────
-class GitCommitAndPushInput(BaseModel):
-    repo_path: str = Field(..., description="git リポジトリのルート絶対パス")
-    commit_message: str = Field(..., description="コミットメッセージ")
-    branch_name: str = Field(..., description="プッシュ先のブランチ名（チェックアウト済み）")
+class ListProjectFilesInput(BaseModel):
+    repo_path: str = Field(..., description="リポジトリのルート絶対パス")
 
 
-class GitCommitAndPushTool(BaseTool):
-    name: str = "Git Commit And Push"
+class ListProjectFilesTool(BaseTool):
+    name: str = "List Project Files"
     description: str = (
-        "変更ファイルをすべてステージングし、コミットして指定ブランチにプッシュする。"
-        "ブランチはすでに作成・チェックアウト済みの前提で動作する。"
-        "実装ファイルをすべて書き終えた後に使用すること。"
+        "リポジトリのファイル一覧（相対パス）を返す。"
+        "node_modules / vendor / .venv / .git / storage / __pycache__ などの重いディレクトリは除外する。"
+        "ファイルの中身は含まない。まず最初にこのツールでプロジェクト構造を把握してから、"
+        "FileReadTool で必要なファイルの内容を読むこと。"
     )
-    args_schema: Type[BaseModel] = GitCommitAndPushInput
+    args_schema: Type[BaseModel] = ListProjectFilesInput
 
-    def _run(self, repo_path: str, commit_message: str, branch_name: str) -> str:
-        try:
-            subprocess.run(
-                ["git", "add", "-A"],
-                cwd=repo_path, capture_output=True, text=True, check=True
-            )
-            subprocess.run(
-                ["git", "commit", "-m", commit_message],
-                cwd=repo_path, capture_output=True, text=True, check=True
-            )
-            result = subprocess.run(
-                ["git", "push", "-u", "origin", branch_name],
-                cwd=repo_path, capture_output=True, text=True, check=True
-            )
-            return f"ブランチ '{branch_name}' へのコミット・プッシュが完了しました。\n{result.stdout}"
-        except subprocess.CalledProcessError as e:
-            return f"Git 操作に失敗しました: {e.stderr}"
+    _EXCLUDE_DIRS = {
+        "node_modules", "vendor", ".venv", ".git",
+        "storage", ".idea", "__pycache__", "dist", "build",
+        ".terraform", "coverage",
+    }
+    _EXCLUDE_EXTENSIONS = {".log", ".lock", ".map", ".min.js", ".min.css"}
+
+    def _run(self, repo_path: str) -> str:
+        lines = []
+        for root, dirs, files in os.walk(repo_path):
+            dirs[:] = sorted(d for d in dirs if d not in self._EXCLUDE_DIRS)
+            for f in sorted(files):
+                if any(f.endswith(ext) for ext in self._EXCLUDE_EXTENSIONS):
+                    continue
+                full_path = os.path.join(root, f)
+                rel_path = os.path.relpath(full_path, repo_path)
+                lines.append(rel_path)
+        if not lines:
+            return "ファイルが見つかりませんでした。"
+        return "\n".join(lines)
 
 
 # ─────────────────────────────────────────────
-# GitHub: プルリクエスト作成
+# コード検索（grep 相当）
+# ファイルを全部読む前に関連ファイルを絞り込むために使う
 # ─────────────────────────────────────────────
-class CreatePRInput(BaseModel):
-    repo_path: str = Field(..., description="git リポジトリのルート絶対パス")
-    title: str = Field(..., description="プルリクエストのタイトル")
-    body: str = Field(..., description="プルリクエストの本文（変更内容・確認事項など）")
-    base_branch: str = Field(default="develop", description="マージ先のブランチ名")
+class SearchCodeInput(BaseModel):
+    repo_path: str = Field(..., description="リポジトリのルート絶対パス")
+    query: str = Field(..., description="検索するキーワードまたは正規表現")
+    file_pattern: str = Field(
+        default="*",
+        description="対象ファイルのパターン（例: *.php, *.blade.php, *.js）。省略時は全ファイル対象",
+    )
 
 
-class CreatePRTool(BaseTool):
-    name: str = "Create GitHub Pull Request"
+class SearchCodeTool(BaseTool):
+    name: str = "Search Code"
     description: str = (
-        "gh CLI を使って GitHub にプルリクエストを作成する。"
-        "コミット・プッシュが完了した後に使用すること。"
+        "リポジトリ内のファイルをキーワードで検索し、マッチした行とファイルパスを返す。"
+        "FileReadTool でファイルを読む前に必ずこのツールで関連ファイルを絞り込むこと。"
+        "例: Issue に 'Product' が含まれるなら query='Product' で検索して関連ファイルを特定する。"
+        "node_modules / vendor / .venv / .git などの重いディレクトリは自動除外される。"
     )
-    args_schema: Type[BaseModel] = CreatePRInput
+    args_schema: Type[BaseModel] = SearchCodeInput
 
-    def _run(self, repo_path: str, title: str, body: str, base_branch: str = "develop") -> str:
-        try:
-            result = subprocess.run(
-                ["gh", "pr", "create", "--title", title, "--body", body, "--base", base_branch],
-                cwd=repo_path, capture_output=True, text=True, check=True
-            )
-            return f"プルリクエストを作成しました！\n{result.stdout}"
-        except subprocess.CalledProcessError as e:
-            return f"PR 作成に失敗しました: {e.stderr}"
+    _EXCLUDE_DIRS = [
+        "node_modules", "vendor", ".venv", ".git",
+        "storage", ".idea", "__pycache__", "dist", "build",
+        ".terraform", "coverage",
+    ]
+
+    def _run(self, repo_path: str, query: str, file_pattern: str = "*") -> str:
+        cmd = ["grep", "-r", "-n", "-i", "--include", file_pattern, query, repo_path]
+        for d in self._EXCLUDE_DIRS:
+            cmd.extend(["--exclude-dir", d])
+
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        if not result.stdout.strip():
+            return f"'{query}' に一致するコードが見つかりませんでした。"
+
+        lines = result.stdout.strip().split("\n")
+        # トークン節約のため上限を設ける
+        if len(lines) > 80:
+            truncated = len(lines) - 80
+            lines = lines[:80]
+            lines.append(f"... (残り {truncated} 件省略。file_pattern を絞るか query を変えて再検索してください)")
+
+        return "\n".join(lines)
+
+

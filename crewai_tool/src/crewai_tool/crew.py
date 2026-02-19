@@ -122,6 +122,6 @@ class CrewaiTool():
             tasks=self.tasks,                          # implementation → qa_review
             process=Process.hierarchical,
             manager_agent=self.engineering_manager(),
-            max_rpm=3,                                 # 30K TPM 制限対策: リクエストを分散
+            max_rpm=2,                                 # Haiku 50K TPM 制限対策: リクエストを分散（まだ超える場合は 1 に変更）
             verbose=True,
         )
