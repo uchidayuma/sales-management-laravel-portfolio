@@ -1,0 +1,76 @@
+implementation_task:
+  description: >
+    以下の Issue を実装してください。
+
+    【Issue #{issue_number}】
+    {issue}
+
+    【リポジトリルート】
+    {repo_root}
+
+    【作業ブランチ】
+    {branch_name}（チェックアウト済み）
+
+    【手順】
+    1. DirectoryReadTool でリポジトリ全体の構造を確認する
+    2. FileReadTool で関連する既存ファイルを読み込み、現状のコードを把握する
+    3. Issue の要件を満たすコードを FileWriterTool で実際にファイルに書き込む
+       - 既存ファイルの修正: 既存内容を読んだ上で完全な新しい内容を書き込む
+       - 新規ファイル: 適切なパスに作成する
+       - パスは必ず絶対パスで指定すること（例: {repo_root}/app/Http/Controllers/ProductController.php）
+    4. すべてのファイルを書き終えたら完了とする（コミットはしない）
+  expected_output: >
+    実際に書き込んだファイルの一覧と、各ファイルの変更内容の説明。
+    書き込んだファイルの絶対パスを必ず含めること。
+  agent: backend_developer
+
+qa_review_task:
+  description: >
+    backend_developer が実装したファイルをレビューしてください。
+
+    【Issue #{issue_number}】
+    {issue}
+
+    【リポジトリルート】
+    {repo_root}
+
+    【手順】
+    1. FileReadTool で implementation_task が書いたファイルを読み込む
+    2. Issue の要件をすべて満たしているか確認する
+    3. コード品質・セキュリティ・エッジケースを検証する
+    4. 問題があれば指摘内容をまとめる
+  expected_output: >
+    QA レビューレポート（総合評価 / 良かった点 / 問題点 / 改善提案）
+  agent: qa_engineer
+  context:
+    - implementation_task
+
+pr_task:
+  description: >
+    レビューが完了したコードをコミット・プッシュし、プルリクエストを作成してください。
+
+    【リポジトリルート】
+    {repo_root}
+
+    【作業ブランチ】
+    {branch_name}
+
+    【マージ先ブランチ】
+    {base_branch}
+
+    【手順】
+    1. GitCommitAndPushTool でコミット・プッシュする
+       - repo_path: {repo_root}
+       - branch_name: {branch_name}
+       - commit_message: Issue #{issue_number} の内容を日本語で簡潔に記述する
+    2. CreatePRTool でプルリクエストを作成する
+       - repo_path: {repo_root}
+       - base_branch: {base_branch}
+       - title: Issue #{issue_number} のタイトルを英語で簡潔に
+       - body: 変更内容・確認事項・QA レビュー結果を含める
+  expected_output: >
+    作成したプルリクエストの URL
+  agent: qa_engineer
+  context:
+    - implementation_task
+    - qa_review_task
