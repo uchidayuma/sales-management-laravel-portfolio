@@ -20,8 +20,15 @@ implementation_task:
        - ✅ 正しい例: {repo_root}/app/Http/Controllers/ContactController.php
        - ❌ 間違い例: ./app/Http/Controllers/ContactController.php （相対パスは使わない）
        - FileWriterTool の directory には {repo_root}/app/Http/Controllers のように絶対パスを渡す
-       - 既存ファイルの修正: 既存内容を読んだ上で完全な新しい内容を書き込む
        - 新規ファイル: {repo_root} 配下の適切なパスに作成する
+       - 【重要】既存ファイルの修正ルール:
+         * FileWriterTool はファイルを完全上書きする。既存メソッドを誤って削除しないこと。
+         * 既存ファイルを修正する場合、FileReadTool で必ずファイル全体を読み込んでから作業する。
+         * 追加・変更するのは Issue に関係するメソッド・クラスだけ。
+           既存の他のメソッド・プロパティ・use 文・定数は一切削除してはいけない。
+         * 書き込む前に「既存メソッドが全て含まれているか」を自分でチェックすること。
+         * ファイルが大きすぎて一度に読み込めない場合は、新機能のみを新規ファイルに分離して作成する
+           （例: ContactImportController.php として新規作成し、既存の ContactController.php は変更しない）
     5. インフラの変更・追加が必要な要件がある場合は以下も対応する
        - ローカル開発環境が必要であれば {repo_root}/compose.yaml を修正する
          （既存ファイルを FileReadTool で読み込んでから修正すること）
