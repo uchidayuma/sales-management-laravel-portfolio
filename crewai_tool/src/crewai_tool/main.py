@@ -21,53 +21,69 @@ def _get_repo_root() -> str:
     return repo_root
 
 
-def _load_issue() -> str:
+def _load_issue(issue_number: str, repo_root: str) -> str:
     """
-    Issue 内容を以下の優先順位で取得する:
-      1. 環境変数 ISSUE
-      2. crewai_tool/issue.md ファイル
+    GitHub CLI で Issue の内容を取得する。
+    取得できない場合は例外を投げる。
     """
-    issue = os.environ.get("ISSUE")
-    if issue:
-        return issue
-
-    issue_file = Path(__file__).parent.parent.parent.parent / "issue.md"
-    if issue_file.exists():
-        return issue_file.read_text(encoding="utf-8").strip()
-
-    raise FileNotFoundError(
-        "Issue が見つかりません。以下のいずれかで指定してください:\n"
-        "  1. 環境変数: export ISSUE='## 機能追加: ...'\n"
-        "  2. ファイル: crewai_tool/issue.md を作成する\n"
-        f"     (探したパス: {issue_file})"
+    result = subprocess.run(
+        ["gh", "issue", "view", issue_number, "--json", "title,body,labels,assignees"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
     )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Issue #{issue_number} の取得に失敗しました。\n"
+            f"gh CLI がログイン済みか、Issue 番号が正しいか確認してください。\n"
+            f"エラー: {result.stderr.strip()}"
+        )
+
+    import json
+    data = json.loads(result.stdout)
+    title = data.get("title", "")
+    body = data.get("body", "")
+    labels = ", ".join(l["name"] for l in data.get("labels", []))
+    assignees = ", ".join(a["login"] for a in data.get("assignees", []))
+
+    parts = [f"## {title}"]
+    if labels:
+        parts.append(f"**Labels:** {labels}")
+    if assignees:
+        parts.append(f"**Assignees:** {assignees}")
+    parts.append("")
+    parts.append(body)
+
+    return "\n".join(parts)
 
 
 def _build_inputs() -> dict:
     """実行に必要な inputs を組み立てる"""
     repo_root = _get_repo_root()
-    issue = _load_issue()
-    issue_number = os.environ.get("ISSUE_NUMBER", "0")
-    base_branch = os.environ.get("BASE_BRANCH", "develop")
+    issue_number = os.environ.get("ISSUE_NUMBER", "")
+
+    if not issue_number:
+        raise ValueError(
+            "ISSUE_NUMBER が設定されていません。\n"
+            ".env または環境変数で ISSUE_NUMBER=<番号> を指定してください。"
+        )
+
+    issue = _load_issue(issue_number, repo_root)
 
     return {
         "issue": issue,
         "issue_number": issue_number,
-        "base_branch": base_branch,
         "repo_root": repo_root,
-        # branch_name は @before_kickoff で自動設定される
     }
 
 
 def run():
     """
     Run the crew.
-    Engineering Manager → Backend Developer → QA Engineer → PR 作成
+    Engineering Manager → Backend Developer → QA Engineer
 
     必要な設定:
       - ISSUE_NUMBER : 環境変数 or .env (例: 42)
-      - BASE_BRANCH  : 環境変数 or .env (デフォルト: develop)
-      - Issue 内容   : 環境変数 ISSUE または crewai_tool/issue.md
     """
     try:
         inputs = _build_inputs()
@@ -121,14 +137,14 @@ def run_with_trigger():
 
     repo_root = _get_repo_root()
 
-    # ペイロードに issue が含まれない場合は issue.md から読む
-    issue = trigger_payload.get("issue") or _load_issue()
+    issue_number = trigger_payload.get("issue_number", os.environ.get("ISSUE_NUMBER", ""))
+    # ペイロードに issue 本文が含まれない場合は GitHub CLI で取得
+    issue = trigger_payload.get("issue") or _load_issue(issue_number, repo_root)
 
     inputs = {
         "crewai_trigger_payload": trigger_payload,
         "issue": issue,
-        "issue_number": trigger_payload.get("issue_number", os.environ.get("ISSUE_NUMBER", "0")),
-        "base_branch": trigger_payload.get("base_branch", os.environ.get("BASE_BRANCH", "develop")),
+        "issue_number": issue_number,
         "repo_root": repo_root,
     }
 

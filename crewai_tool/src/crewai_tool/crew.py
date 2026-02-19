@@ -1,12 +1,11 @@
 import os
-import subprocess
 from crewai import Agent, Crew, Process, Task, LLM
-from crewai.project import CrewBase, agent, before_kickoff, crew, task
+from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
-from crewai_tools import FileWriterTool, FileReadTool, DirectoryReadTool
+from crewai_tools import FileWriterTool, FileReadTool
 from typing import List
 
-from crewai_tool.tools.custom_tool import GitCommitAndPushTool, CreatePRTool
+from crewai_tool.tools.custom_tool import ListProjectFilesTool, SearchCodeTool
 
 
 @CrewBase
@@ -17,7 +16,11 @@ class CrewaiTool():
     構造:
       Engineering Manager (manager_agent)
         ├── Backend Developer  → implementation_task（ファイル読み書き）
-        └── QA Engineer        → qa_review_task（レビュー） → pr_task（PR作成）
+        └── QA Engineer        → qa_review_task（レビュー）
+
+    GitHub 連携:
+      - Issue の取得のみ GitHub CLI で行う（main.py の _load_issue）
+      - ブランチ操作・コミット・PR 作成は行わない
     """
 
     agents: List[BaseAgent]
@@ -29,7 +32,7 @@ class CrewaiTool():
         プロバイダーを切り替えられる（コード変更不要）。
 
         対応プロバイダー:
-          - Anthropic : anthropic/claude-sonnet-4-5-20250929  → ANTHROPIC_API_KEY
+          - Anthropic : anthropic/claude-sonnet-4-6          → ANTHROPIC_API_KEY
           - OpenAI    : openai/gpt-4o                        → OPENAI_API_KEY
           - Gemini    : gemini/gemini-2.0-flash              → GOOGLE_API_KEY
           - Ollama    : ollama/qwen3:4b                      → APIキー不要（localhost）
@@ -48,45 +51,15 @@ class CrewaiTool():
         return LLM(model=model)
 
     # -------------------------------------------------------------------------
-    # ブランチ準備（タスク開始前に自動実行）
-    # - issue_number からブランチ名を決定する
-    # - 既存ブランチがあればチェックアウトのみ、なければ base_branch から作成
-    # -------------------------------------------------------------------------
-    @before_kickoff
-    def setup_branch(self, inputs):
-        repo_root = inputs.get("repo_root", ".")
-        issue_number = inputs.get("issue_number", "0")
-        base_branch = inputs.get("base_branch", "develop")
-        branch_name = f"feature/issue-{issue_number}"
-
-        # ローカルブランチの存在確認
-        local = subprocess.run(
-            ["git", "branch", "--list", branch_name],
-            cwd=repo_root, capture_output=True, text=True
-        )
-
-        if local.stdout.strip():
-            # 既存ブランチをチェックアウト
-            subprocess.run(["git", "checkout", branch_name], cwd=repo_root, check=True)
-            print(f"[Branch] 既存ブランチ '{branch_name}' をチェックアウトしました")
-        else:
-            # base_branch から新規作成
-            subprocess.run(["git", "checkout", base_branch], cwd=repo_root, check=True)
-            subprocess.run(["git", "checkout", "-b", branch_name], cwd=repo_root, check=True)
-            print(f"[Branch] '{base_branch}' から新しいブランチ '{branch_name}' を作成しました")
-
-        # タスク内で {branch_name} として参照できるよう inputs に追加
-        inputs["branch_name"] = branch_name
-        return inputs
-
-    # -------------------------------------------------------------------------
     # マネージャーエージェント
     # ※ @agent デコレータなし → self.agents に含まれず manager_agent として使う
     # -------------------------------------------------------------------------
     def engineering_manager(self) -> Agent:
+        # Manager の役割は「どのワーカーに振るか判断するだけ」なので MODEL_SMALL で十分。
+        # MODEL_LARGE (Sonnet) は 30K TPM 制限があり、大きな Issue で即座に rate limit に達する。
         return Agent(
             config=self.agents_config['engineering_manager'],  # type: ignore[index]
-            llm=self._get_llm("MODEL_LARGE"),
+            llm=self._get_llm("MODEL_SMALL"),
             allow_delegation=True,
             verbose=True,
         )
@@ -96,30 +69,30 @@ class CrewaiTool():
     # -------------------------------------------------------------------------
     @agent
     def backend_developer(self) -> Agent:
-        repo_root = os.environ.get("REPO_ROOT", ".")
         return Agent(
             config=self.agents_config['backend_developer'],  # type: ignore[index]
             llm=self._get_llm("MODEL_SMALL"),
             tools=[
-                DirectoryReadTool(directory=repo_root),
+                ListProjectFilesTool(),
+                SearchCodeTool(),
                 FileReadTool(),
                 FileWriterTool(),
             ],
+            allow_delegation=False,  # ループ防止：ワーカーは委譲しない
             verbose=True,
         )
 
     @agent
     def qa_engineer(self) -> Agent:
-        repo_root = os.environ.get("REPO_ROOT", ".")
         return Agent(
             config=self.agents_config['qa_engineer'],  # type: ignore[index]
             llm=self._get_llm("MODEL_SMALL"),
             tools=[
-                DirectoryReadTool(directory=repo_root),
+                ListProjectFilesTool(),
+                SearchCodeTool(),
                 FileReadTool(),
-                GitCommitAndPushTool(),
-                CreatePRTool(),
             ],
+            allow_delegation=False,  # ループ防止：ワーカーは委譲しない
             verbose=True,
         )
 
@@ -136,13 +109,7 @@ class CrewaiTool():
     def qa_review_task(self) -> Task:
         return Task(
             config=self.tasks_config['qa_review_task'],  # type: ignore[index]
-        )
-
-    @task
-    def pr_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['pr_task'],  # type: ignore[index]
-            output_file='pr_result.md',
+            output_file='qa_result.md',
         )
 
     # -------------------------------------------------------------------------
@@ -152,8 +119,9 @@ class CrewaiTool():
     def crew(self) -> Crew:
         return Crew(
             agents=self.agents,                        # backend_developer, qa_engineer
-            tasks=self.tasks,                          # implementation → qa_review → pr
+            tasks=self.tasks,                          # implementation → qa_review
             process=Process.hierarchical,
             manager_agent=self.engineering_manager(),
+            max_rpm=3,                                 # 30K TPM 制限対策: リクエストを分散
             verbose=True,
         )

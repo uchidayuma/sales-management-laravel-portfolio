@@ -8,17 +8,26 @@ implementation_task:
     【リポジトリルート】
     {repo_root}
 
-    【作業ブランチ】
-    {branch_name}（チェックアウト済み）
-
     【手順】
-    1. DirectoryReadTool でリポジトリ全体の構造を確認する
-    2. FileReadTool で関連する既存ファイルを読み込み、現状のコードを把握する
-    3. Issue の要件を満たすコードを FileWriterTool で実際にファイルに書き込む
+    1. List Project Files ツールでディレクトリ構造だけを把握する（ファイルの中身は読まない）
+    2. Search Code ツールで Issue のキーワードを検索し、関連ファイルを絞り込む
+       - Issue に含まれるクラス名・メソッド名・機能名などを query に指定する
+       - file_pattern で *.php, *.blade.php など拡張子を絞ると効率的
+       - 変更対象のファイルを 3〜5 件程度に絞り込む（全ファイルを読まないこと）
+    3. FileReadTool で絞り込んだファイルだけを読み、現状のコードを把握する
+    4. Issue の要件を満たすコードを FileWriterTool で実際にファイルに書き込む
+       - パスは【必ず絶対パス】で指定すること
+       - ✅ 正しい例: {repo_root}/app/Http/Controllers/ContactController.php
+       - ❌ 間違い例: ./app/Http/Controllers/ContactController.php （相対パスは使わない）
+       - FileWriterTool の directory には {repo_root}/app/Http/Controllers のように絶対パスを渡す
        - 既存ファイルの修正: 既存内容を読んだ上で完全な新しい内容を書き込む
-       - 新規ファイル: 適切なパスに作成する
-       - パスは必ず絶対パスで指定すること（例: {repo_root}/app/Http/Controllers/ProductController.php）
-    4. すべてのファイルを書き終えたら完了とする（コミットはしない）
+       - 新規ファイル: {repo_root} 配下の適切なパスに作成する
+    5. インフラの変更・追加が必要な要件がある場合は以下も対応する
+       - ローカル開発環境が必要であれば {repo_root}/compose.yaml を修正する
+         （既存ファイルを FileReadTool で読み込んでから修正すること）
+       - 本番インフラが必要であれば {repo_root}/terraform/ 配下に適切なファイルを作成・修正する
+       - 何をどう変更すべきかは Issue の要件から判断すること
+    6. すべてのファイルを書き終えたら完了とする（コミットはしない）
   expected_output: >
     実際に書き込んだファイルの一覧と、各ファイルの変更内容の説明。
     書き込んだファイルの絶対パスを必ず含めること。
@@ -27,50 +36,21 @@ implementation_task:
 qa_review_task:
   description: >
     backend_developer が実装したファイルをレビューしてください。
+    Issue の内容は implementation_task の context を参照してください。
 
     【Issue #{issue_number}】
-    {issue}
 
     【リポジトリルート】
     {repo_root}
 
     【手順】
-    1. FileReadTool で implementation_task が書いたファイルを読み込む
-    2. Issue の要件をすべて満たしているか確認する
-    3. コード品質・セキュリティ・エッジケースを検証する
-    4. 問題があれば指摘内容をまとめる
+    1. implementation_task の結果から「書き込んだファイルの絶対パス一覧」を確認する
+    2. FileReadTool でその対象ファイルだけを読む（他のファイルは読まない）
+    3. Issue の要件をすべて満たしているか確認する
+    4. コード品質・セキュリティ・エッジケースを検証する
+    5. 問題があれば指摘内容をまとめる
   expected_output: >
     QA レビューレポート（総合評価 / 良かった点 / 問題点 / 改善提案）
   agent: qa_engineer
   context:
     - implementation_task
-
-pr_task:
-  description: >
-    レビューが完了したコードをコミット・プッシュし、プルリクエストを作成してください。
-
-    【リポジトリルート】
-    {repo_root}
-
-    【作業ブランチ】
-    {branch_name}
-
-    【マージ先ブランチ】
-    {base_branch}
-
-    【手順】
-    1. GitCommitAndPushTool でコミット・プッシュする
-       - repo_path: {repo_root}
-       - branch_name: {branch_name}
-       - commit_message: Issue #{issue_number} の内容を日本語で簡潔に記述する
-    2. CreatePRTool でプルリクエストを作成する
-       - repo_path: {repo_root}
-       - base_branch: {base_branch}
-       - title: Issue #{issue_number} のタイトルを英語で簡潔に
-       - body: 変更内容・確認事項・QA レビュー結果を含める
-  expected_output: >
-    作成したプルリクエストの URL
-  agent: qa_engineer
-  context:
-    - implementation_task
-    - qa_review_task
