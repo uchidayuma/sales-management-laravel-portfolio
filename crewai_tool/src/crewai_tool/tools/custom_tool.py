@@ -31,6 +31,9 @@ class ListProjectFilesTool(BaseTool):
     _EXCLUDE_EXTENSIONS = {".log", ".lock", ".map", ".min.js", ".min.css"}
 
     def _run(self, repo_path: str) -> str:
+        # '/' や空文字など無効なパスは REPO_ROOT 環境変数にフォールバック
+        if not repo_path or repo_path == "/":
+            repo_path = os.environ.get("REPO_ROOT", repo_path)
         lines = []
         for root, dirs, files in os.walk(repo_path):
             dirs[:] = sorted(d for d in dirs if d not in self._EXCLUDE_DIRS)
@@ -75,6 +78,9 @@ class SearchCodeTool(BaseTool):
     ]
 
     def _run(self, repo_path: str, query: str, file_pattern: str = "*") -> str:
+        # '/' や空文字など無効なパスは REPO_ROOT 環境変数にフォールバック
+        if not repo_path or repo_path == "/":
+            repo_path = os.environ.get("REPO_ROOT", repo_path)
         cmd = ["grep", "-r", "-n", "-i", "--include", file_pattern, query, repo_path]
         for d in self._EXCLUDE_DIRS:
             cmd.extend(["--exclude-dir", d])
