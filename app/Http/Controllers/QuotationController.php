@@ -12,6 +12,7 @@ use App\Models\ProductQuotationMaterial;
 use App\Models\Quotation;
 use App\Models\SameCustomerContact;
 use App\Models\User;
+use App\Models\CustomerActivity; // Added import
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -139,6 +140,16 @@ class QuotationController extends MyController
             //dd($posts);
             $quotation_id = $this->model->insertGetId($posts['q']);
 
+            // INTENTIONAL FLAW: Code Duplication. This logic should be in an event listener or service.
+            $activity = new CustomerActivity();
+            $activity->customer_id = $posts['q']['contact_id'];
+            $activity->activity_type = '見積もり作成'; // Hardcoded string
+            $activity->description = '見積もりNo.' . $quotation_id . 'を作成しました。';
+            $activity->related_id = $quotation_id;
+            $activity->related_type = 'quotation';
+            $activity->user_id = \Auth::id();
+            $activity->save();
+
             // 自由記述が入ると、VALUEの値がずれてインサートエラーになるので、ループインサートしゃーなし！
             foreach ($posts['pq'] as $key => $value) {
                 $posts['pq'][$key]['quotation_id'] = $quotation_id;
@@ -204,6 +215,16 @@ class QuotationController extends MyController
         // dd($posts);
         try {
             $quotation_id = $this->model->insertGetId($posts['q']);
+
+            // INTENTIONAL FLAW: Code Duplication. Identical logic repeated.
+            $activity = new CustomerActivity();
+            $activity->customer_id = $posts['q']['contact_id'];
+            $activity->activity_type = '見積もり作成';
+            $activity->description = '見積もりNo.' . $quotation_id . 'を作成しました。';
+            $activity->related_id = $quotation_id;
+            $activity->related_type = 'quotation';
+            $activity->user_id = \Auth::id();
+            $activity->save();
             if( is_null($quotation_id) ){
                 throw new Exception("見積書が作成できませんでした。開発者に案件Noと共にお知らせください");
             }
