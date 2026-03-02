@@ -1,0 +1,64 @@
+# VCS
+.git
+.gitignore
+.gitattributes
+
+# 環境設定（シークレットを含む可能性があるため必ず除外）
+.env
+.env.*
+!.env.example
+
+# 開発・テスト用ファイル（本番イメージに含めない）
+node_modules
+tests
+*.test.*
+*.spec.*
+
+# Dockerファイル自体
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# ローカル開発ツール
+.editorconfig
+.phpstorm.meta.php
+_ide_helper*.php
+phpunit.xml
+phpunit.xml.dist
+.phpunit.cache
+.phpunit.result.cache
+
+# キャッシュ・ログ（実行時に生成される）
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+# .gitkeepファイルは保持する
+!storage/logs/.gitkeep
+!storage/framework/cache/.gitkeep
+!storage/framework/sessions/.gitkeep
+!storage/framework/views/.gitkeep
+!bootstrap/cache/.gitkeep
+
+# ビルド生成物（マルチステージで各ステージが担当）
+public/hot
+
+# Terraform（インフラ設定はDockerイメージに不要）
+terraform/
+
+# CrewAI・その他ツール
+crewai_tool/
+
+# ドキュメント
+*.md
+docs/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

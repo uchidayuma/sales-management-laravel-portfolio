@@ -26,7 +26,18 @@
       "Bash(sort:*)",
       "Bash(git rm:*)",
       "Bash(git reflog expire:*)",
-      "Bash(git gc:*)"
+      "Bash(git gc:*)",
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(claude mcp:*)",
+      "Bash(aws ecr:*)",
+      "Bash(aws ecs:*)",
+      "Bash(aws logs:*)",
+      "Bash(docker run:*)",
+      "Bash(__NEW_LINE_d0d94329824a9ffb__ echo:*)",
+      "Bash(__NEW_LINE_d5e0878f46424b4d__ echo:*)",
+      "Bash(__NEW_LINE_d6440d1527dad6cf__ aws:*)",
+      "Bash(__NEW_LINE_1c9156f77d027371__ aws:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,0 +1,169 @@
+# =============================================================================
+# ステージ1: Composerによる依存関係インストール
+# 【セキュリティ上の意味】
+#   Composer本体（composer.phar）およびそのキャッシュ・認証情報を最終イメージに
+#   含めない。ビルドツールの分離によりアタックサーフェスを削減する。
+# =============================================================================
+FROM php:8.4-alpine AS composer-deps
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+# --optimize-autoloader はクラスマップ生成のためにソースファイルのスキャンが必要。
+# そのため composer.json/lock だけでなくアプリ全体をコピーする。
+# （node_modules / .env 等は .dockerignore で除外済み）
+COPY . .
+
+# --no-dev          : テスト・デバッグ用パッケージを除外（本番環境への不要ツール混入防止）
+# --no-scripts      : composer スクリプト(artisan等)をこの段階で実行しない（誤爆防止）
+# --no-interaction  : CI/CD環境での対話入力を回避
+# --optimize-autoloader: クラスマップを生成し、オートロードのパフォーマンスを最大化
+# --ignore-platform-reqs: composer:2イメージにはgd/pdo_mysql等の拡張が入っていないためスキップ
+#                         実際の拡張は最終ステージ(php:8.4-fpm-alpine)で揃える
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-interaction \
+    --optimize-autoloader \
+    --ignore-platform-reqs
+
+# =============================================================================
+# ステージ2: Node.js によるフロントエンドアセットのビルド
+# 【セキュリティ上の意味】
+#   Node.js / npm / node_modules（脆弱性の多い依存関係）を最終イメージに含めない。
+#   ビルド成果物（JS/CSS）のみを次ステージへ引き渡す。
+# =============================================================================
+FROM node:18-alpine AS node-build
+
+WORKDIR /app
+
+# package.json / package-lock.json を先にコピーしてキャッシュを活用する
+COPY package.json package-lock.json ./
+
+# npm ci: package-lock.json を厳密に参照し、再現性・一貫性のあるビルドを保証する
+# （npm install より決定論的でセキュア）
+RUN npm ci
+
+# Webpack が Laravel のソースファイルを参照するためにアプリ全体をコピーする
+COPY . .
+
+# Laravel Mix でプロダクション用アセットをビルド
+# NODE_ENV=production により minification・最適化が適用される
+RUN npm run prod
+
+# =============================================================================
+# ステージ3: 本番用 PHP-FPM イメージ（最終成果物）
+# 【セキュリティ上の意味】
+#   ビルドツール（Composer/npm/webpack）を一切含まない最小構成のイメージ。
+#   Alpine Linux ベースにより OS レベルのアタックサーフェスをさらに削減する。
+# =============================================================================
+FROM php:8.4-fpm-alpine AS production
+
+# --virtual .build-deps: ビルド時のみ必要なコンパイルツール・ヘッダーファイルを
+# 仮想グループとしてまとめ、PHP拡張コンパイル後にまとめて削除する。
+# これにより最終イメージにコンパイルツールが残らず、アタックサーフェスが最小化される。
+RUN apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    libxml2-dev \
+    oniguruma-dev \
+    # GD拡張: freetype（フォント）・libjpeg（画像）サポートを有効化
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    # 必要最小限のPHP拡張機能のみをインストール
+    # 不要な拡張機能はランタイム攻撃のベクタになるため、使用するものだけを有効化する
+    && docker-php-ext-install -j$(nproc) \
+    bcmath \
+    exif \
+    gd \
+    mbstring \
+    pcntl \
+    pdo_mysql \
+    zip \
+    # Redisセッション・キャッシュのためのPECL拡張をインストール
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    # ビルド用依存ライブラリをまとめて削除（イメージサイズ削減・アタックサーフェス削減）
+    && apk del .build-deps \
+    # ランタイムに必要な共有ライブラリのみを追加
+    && apk add --no-cache \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
+    fcgi
+
+# PHP本番用設定をコピー
+# expose_php=Off / display_errors=Off などセキュリティに関わる設定を適用する
+COPY docker/php/prod.ini /usr/local/etc/php/conf.d/prod.ini
+
+WORKDIR /var/www
+
+# 【権限分離】ステージ1(composer-deps)からvendorディレクトリのみをコピーする。
+# Composer本体・認証情報キャッシュ・グローバル設定等は含まれない。
+COPY --from=composer-deps /app/vendor ./vendor
+
+# アプリケーションのソースコードをコピーする
+# .dockerignore で .env / .git / node_modules / tests 等を除外すること
+COPY . .
+
+# 【最小権限の原則】ステージ2(node-build)からビルド済み静的アセットで上書きする。
+# node_modules・npm・webpackは最終イメージに一切含まれない。
+COPY --from=node-build /app/public ./public
+
+# 【権限分離】storageとbootstrap/cacheのみwww-dataに書き込み権限を付与する。
+# ECS tmpfsマウントは既存のディレクトリにしか適用できないため、存在しないかもしれない
+# サブディレクトリを明示的に作成しておく。
+RUN mkdir -p /var/www/storage/framework/cache/data \
+    && chown -R www-data:www-data \
+    /var/www/storage \
+    /var/www/bootstrap/cache \
+    && chmod -R 775 \
+    /var/www/storage \
+    /var/www/bootstrap/cache
+
+# 【PHP-FPM のプロセスモデルと権限設計】
+# PHP-FPM はマスタープロセスとワーカープロセスの2層構造で動作する。
+#
+# マスタープロセス（root で起動）の役割:
+#   - ワーカープロセスを fork し、pool 設定の user/group（www-data）に setuid/setgid する
+#   - accept mutex lock ファイルを /tmp に書き込む（root なので root:root 755 でも書ける）
+#   - SIGTERM/SIGCHLD 等のシグナルを処理してワーカーを管理する
+#
+# ワーカープロセス（www-data として実行）の役割:
+#   - PHP リクエストを処理する（/usr/local/etc/php-fpm.d/www.conf の user = www-data 設定による）
+#   - /var/www/storage, /var/www/bootstrap/cache への書き込みが可能（chown 済み）
+#
+# 【なぜ USER www-data を指定するのか】
+# ECS Fargate で readonlyRootFilesystem = true が設定されている場合、
+# ECS Init コンテナによって事前にボリュームマウントパス（/var/www/storage 等）
+# の所有権が www-data:www-data に変更されています。
+# そのため、PHP-FPM 自体を www-data ユーザーで起動することで、
+# 完全なルートレス（rootless）化を実現できます。
+
+# ルートレス環境では php-fpm デフォルトの PID ファイルパス(/run/php-fpm.pidなど)に
+# 書き込みができないため、書き込み可能な /tmp 領域に PID を出力するよう設定します。
+# 今回は ECS Fargate の tmpfs マウント機能を使用するため /tmp で問題ありません。
+RUN echo "[global]" > /usr/local/etc/php-fpm.d/zz-rootless.conf \
+    && echo "pid = /tmp/php-fpm.pid" >> /usr/local/etc/php-fpm.d/zz-rootless.conf \
+    && echo "error_log = /proc/self/fd/2" >> /usr/local/etc/php-fpm.d/zz-rootless.conf \
+    && echo "[www]" >> /usr/local/etc/php-fpm.d/zz-rootless.conf \
+    && echo "ping.path = /ping" >> /usr/local/etc/php-fpm.d/zz-rootless.conf
+
+USER www-data
+
+# 【True Stateless Read-Only Configuration】
+# Pre-compile everything so no writes are necessary at runtime.
+# WARNING: Do NOT run `config:cache` here, otherwise it will hardcode empty build-time env vars
+# and completely ignore the ECS task environment variables (REDIS_HOST, DB_HOST, etc.) at runtime.
+RUN APP_KEY=base64:KJnUfahmv+280DfBsl/wEZaSY1l9Y/ZF4h3r5pUAjH8= php artisan package:discover --ansi \
+    && APP_KEY=base64:KJnUfahmv+280DfBsl/wEZaSY1l9Y/ZF4h3r5pUAjH8= php artisan route:cache \
+    && APP_KEY=base64:KJnUfahmv+280DfBsl/wEZaSY1l9Y/ZF4h3r5pUAjH8= php artisan view:cache
+
+# PHP-FPM はポート9000でリッスンする。
+# NginxコンテナはECSタスクのlocalhost(127.0.0.1:9000)経由で接続する。
+EXPOSE 9000
+
+CMD ["php-fpm"]
