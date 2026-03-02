@@ -187,7 +187,7 @@ Route::group(['middleware' => ['auth','check.user.role']], function () {
         Route::get('/ajax/{id}', 'QuotationController@ajaxQuotations');
         // 本部見積もり結果登録待ち
         Route::get('pending/list', 'QuotationController@pendingList')->name('quotations.pending.list'); //商談結果登録画面
-        Route::post('pending/list', 'ContactController@pendingListCommit')->name('pending.post'); //商談結果登録画面
+        Route::post('pending/list', 'ContactController@pendingListCommit')->name('quotations.pending.post'); //商談結果登録画面
     });
 
     //部材発注
