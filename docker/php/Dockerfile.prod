@@ -158,9 +158,15 @@ USER www-data
 # Pre-compile everything so no writes are necessary at runtime.
 # WARNING: Do NOT run `config:cache` here, otherwise it will hardcode empty build-time env vars
 # and completely ignore the ECS task environment variables (REDIS_HOST, DB_HOST, etc.) at runtime.
-RUN APP_KEY=base64:KJnUfahmv+280DfBsl/wEZaSY1l9Y/ZF4h3r5pUAjH8= php artisan package:discover --ansi \
-    && APP_KEY=base64:KJnUfahmv+280DfBsl/wEZaSY1l9Y/ZF4h3r5pUAjH8= php artisan route:cache \
-    && APP_KEY=base64:KJnUfahmv+280DfBsl/wEZaSY1l9Y/ZF4h3r5pUAjH8= php artisan view:cache
+#
+# BUILD_APP_KEY はビルド時のartisanコマンド起動にのみ使用するダミー値。
+# route:cache / view:cache / package:discover の出力はAPP_KEYに依存しないため、
+# この値は本番環境では一切使用されない。
+# 本番のAPP_KEYはECSタスク定義の環境変数（Secrets Manager等）で管理すること。
+ARG BUILD_APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+RUN APP_KEY=${BUILD_APP_KEY} php artisan package:discover --ansi \
+    && APP_KEY=${BUILD_APP_KEY} php artisan route:cache \
+    && APP_KEY=${BUILD_APP_KEY} php artisan view:cache
 
 # PHP-FPM はポート9000でリッスンする。
 # NginxコンテナはECSタスクのlocalhost(127.0.0.1:9000)経由で接続する。
