@@ -1,0 +1,43 @@
+{
+  "RoleName": "laravel-sales-dev-ecs-execution-role",
+  "Description": "ECS タスク実行ロール。ECR からのイメージ取得・CloudWatch へのログ書き込み・Secrets Manager からの秘密情報取得を許可する。",
+
+  "AssumeRolePolicyDocument": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "ecs-tasks.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  },
+
+  "ManagedPolicies": [
+    {
+      "PolicyArn": "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+      "Description": "ECR からのイメージ pull と CloudWatch Logs へのログ書き込みを許可する AWS 管理ポリシー"
+    }
+  ],
+
+  "InlinePolicies": [
+    {
+      "PolicyName": "laravel-sales-dev-ecs-execution-secrets-policy",
+      "Description": "Secrets Manager から DB パスワードを取得する権限。コンテナ定義の secrets フィールドで参照するために必要。",
+      "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "secretsmanager:GetSecretValue"
+            ],
+            "Resource": "arn:aws:secretsmanager:ap-northeast-1:200144044244:secret:laravel-sales-dev-db-password-*"
+          }
+        ]
+      }
+    }
+  ]
+}

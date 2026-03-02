@@ -28,16 +28,28 @@ variable "db_username" {
   default     = "admin"
 }
 
-variable "app_image" {
-  description = "Docker image for the application"
+variable "db_password" {
+  description = "Database master password"
   type        = string
-  default     = "uchidayuma/sales-management-laravel:latest" # Placeholder, implies need for Docker Hub or ECR
+  sensitive   = true
+}
+
+variable "app_image" {
+  description = "Docker image for the app (PHP-FPM) container"
+  type        = string
+  default     = "uchidayuma/sales-management-laravel-app:latest" # Placeholder; replace with ECR URL after first push
+}
+
+variable "web_image" {
+  description = "Docker image for the web (Nginx) container"
+  type        = string
+  default     = "uchidayuma/sales-management-laravel-web:latest" # Placeholder; replace with ECR URL after first push
 }
 
 variable "app_port" {
   description = "Port exposed by the docker container"
   type        = number
-  default     = 80
+  default     = 8080
 }
 
 variable "app_count" {
