@@ -1,16 +1,22 @@
 // ============================================
 // ECS タスク実行ロール - 作成手順
 // ============================================
-// [UIで入力]
-// RoleName   : laravel-sales-dev-ecs-execution-role
-// Description: ECS タスク実行ロール。ECR からのイメージ取得・CloudWatch へのログ書き込み・Secrets Manager からの秘密情報取得を許可する。
 //
-// [アタッチするマネージドポリシー]
-// - AmazonECSTaskExecutionRolePolicy
-//   (ECR からのイメージ pull と CloudWatch Logs へのログ書き込みを許可する)
+// 【ステップ1】ロールを作成する（IAM > ロール > ロールを作成）
+//   - 信頼されたエンティティタイプ: 「AWS のサービス」を選択
+//   - ユースケース: 「Elastic Container Service Task」を選択
+//     → 信頼ポリシーが自動設定される（下記JSONを手動で貼る必要はない）
+//   - マネージドポリシー: AmazonECSTaskExecutionRolePolicy をチェック
+//   - RoleName   : laravel-sales-dev-ecs-execution-role
+//   - Description: ECS タスク実行ロール。ECR からのイメージ取得・CloudWatch へのログ書き込み・Secrets Manager からの秘密情報取得を許可する。
+//
+// 【ステップ2】インラインポリシーを追加する（ロール作成後）
+//   - ロール詳細 >「許可を追加」>「インラインポリシーを作成」
+//   - JSON タブに切り替えて下記 [インラインポリシーに貼り付け] のJSONをペースト
+//   - PolicyName: laravel-sales-dev-ecs-execution-secrets-policy
 //
 // ============================================
-// [信頼ポリシーに貼り付け]
+// [参考] 信頼ポリシー（「AWS のサービス > ECS Task」選択時に自動設定される内容）
 // ============================================
 {
   "Version": "2012-10-17",
