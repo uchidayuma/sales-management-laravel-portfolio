@@ -1,0 +1,47 @@
+// ============================================
+// ECS タスク実行ロール - 作成手順
+// ============================================
+//
+// 【ステップ1】ロールを作成する（IAM > ロール > ロールを作成）
+//   - 信頼されたエンティティタイプ: 「AWS のサービス」を選択
+//   - ユースケース: 「Elastic Container Service Task」を選択
+//     → 信頼ポリシーが自動設定される（下記JSONを手動で貼る必要はない）
+//   - マネージドポリシー: AmazonECSTaskExecutionRolePolicy をチェック
+//   - RoleName   : laravel-sales-dev-ecs-execution-role
+//   - Description: ECS タスク実行ロール。ECR からのイメージ取得・CloudWatch へのログ書き込み・Secrets Manager からの秘密情報取得を許可する。
+//
+// 【ステップ2】インラインポリシーを追加する（ロール作成後）
+//   - ロール詳細 >「許可を追加」>「インラインポリシーを作成」
+//   - JSON タブに切り替えて下記 [インラインポリシーに貼り付け] のJSONをペースト
+//   - PolicyName: laravel-sales-dev-ecs-execution-secrets-policy
+//
+// ============================================
+// [参考] 信頼ポリシー（「AWS のサービス > ECS Task」選択時に自動設定される内容）
+// ============================================
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+
+// ============================================
+// [インラインポリシーに貼り付け]
+// PolicyName: laravel-sales-dev-ecs-execution-secrets-policy
+// ============================================
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["secretsmanager:GetSecretValue"],
+      "Resource": "arn:aws:secretsmanager:ap-northeast-1:200144044244:secret:laravel-sales-dev-db-password-*"
+    }
+  ]
+}
