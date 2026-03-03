@@ -1,0 +1,54 @@
+{
+  "RoleName": "laravel-sales-dev-ecs-task-role",
+  "Description": "ECS タスクロール。コンテナ内のアプリケーションが AWS リソース（S3・SSM）にアクセスするための権限を付与する。",
+
+  "AssumeRolePolicyDocument": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "ecs-tasks.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  },
+
+  "ManagedPolicies": [],
+
+  "InlinePolicies": [
+    {
+      "PolicyName": "laravel-sales-dev-ecs-task-policy",
+      "Description": "Laravel アプリケーションが使用する S3（ファイルアップロード）と SSM Parameter Store（設定値取得）へのアクセス権限。",
+      "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "S3BucketAccess",
+            "Effect": "Allow",
+            "Action": [
+              "s3:PutObject",
+              "s3:GetObject",
+              "s3:DeleteObject",
+              "s3:ListBucket"
+            ],
+            "Resource": [
+              "arn:aws:s3:::laravel-sales-dev-uploads",
+              "arn:aws:s3:::laravel-sales-dev-uploads/*"
+            ]
+          },
+          {
+            "Sid": "SSMParameterAccess",
+            "Effect": "Allow",
+            "Action": [
+              "ssm:GetParameters",
+              "ssm:GetParameter"
+            ],
+            "Resource": "arn:aws:ssm:ap-northeast-1:200144044244:parameter/sales-management/dev/*"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+// Add these routes inside the 'contact' group (prefix => 'contact')
+// Location: After the sample/list/show route and before the 案件詳細 comment
+
+Route::get('import', 'ContactController@importForm')->name('contact.import.form');
+Route::post('import', 'ContactController@uploadImport')->name('contact.import.upload');
+Route::get('import/status/{file_key}', 'ContactController@importStatus')->name('contact.import.status');

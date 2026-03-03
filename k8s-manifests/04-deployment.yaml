@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sales-deployment
+  namespace: sales-app
+  labels:
+    app: sales
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sales
+  template:
+    metadata:
+      labels:
+        app: sales
+    spec:
+      serviceAccountName: sales-app-sa
+      # Define shared emptyDir volume for /tmp to satisfy readonlyRootFilesystem constraint
+      volumes:
+        - name: tmp-volume
+          emptyDir:
+            medium: Memory
+
+      containers:
+        # NGINX Container
+        - name: web
+          image: 200144044244.dkr.ecr.ap-northeast-1.amazonaws.com/laravel-sales-dev-web-repo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 101 # nginx user id
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
+            - name: tmp-volume
+              mountPath: /var/cache/nginx
+            - name: tmp-volume
+              mountPath: /var/run
+
+        # PHP-FPM APP Container
+        - name: app
+          image: 200144044244.dkr.ecr.ap-northeast-1.amazonaws.com/laravel-sales-dev-app-repo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: APP_DEBUG
+              value: "false"
+            - name: LOG_CHANNEL
+              value: "stderr"
+            - name: CACHE_STORE
+              value: "redis"
+            - name: SESSION_DRIVER
+              value: "redis"
+            # NOTE: DB_HOST, REDIS_HOST etc. would ideally be injected via External Secrets
+            # For this demo, assuming similar network access
+            # - name: DB_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef: ...
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 33 # www-data user id
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp

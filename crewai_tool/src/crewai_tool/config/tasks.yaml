@@ -32,7 +32,7 @@ implementation_task:
     5. インフラの変更・追加が必要な要件がある場合は以下も対応する
        - ローカル開発環境が必要であれば {repo_root}/compose.yaml を修正する
          （既存ファイルを FileReadTool で読み込んでから修正すること）
-       - 本番インフラが必要であれば {repo_root}/terraform/ 配下に適切なファイルを作成・修正する
+       - 本番インフラが必要であれば {repo_root}/terraform-ecs/ 配下に適切なファイルを作成・修正する
        - 何をどう変更すべきかは Issue の要件から判断すること
     6. すべてのファイルを書き終えたら完了とする（コミットはしない）
   expected_output: >

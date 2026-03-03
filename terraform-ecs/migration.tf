@@ -35,11 +35,23 @@ resource "aws_ecs_task_definition" "db_migrate" {
         { name = "DB_HOST", value = aws_db_instance.default.address },
         { name = "DB_DATABASE", value = aws_db_instance.default.db_name },
         { name = "DB_USERNAME", value = var.db_username },
-        { name = "DB_PASSWORD", value = var.db_password },
         { name = "REDIS_HOST", value = aws_elasticache_cluster.default.cache_nodes[0].address },
+      ]
+      # 【秘密情報はenvironmentではなくsecretsで渡す】
+      # environment に平文で値を渡すと、ECS タスク定義の JSON・CloudWatch Logs・
+      # Terraform の tfstate ファイルにパスワードが平文で記録される。
+      # secrets を使うと ECS が実行時に Secrets Manager から値を取得し、
+      # コンテナ内でのみ環境変数として展開されるため、ログや状態ファイルへの漏洩を防げる。
+      secrets = [
+        { name = "DB_PASSWORD", valueFrom = aws_secretsmanager_secret.db_password.arn },
       ]
     }
   ])
+
+  # deploy.sh がイメージ URI を管理するため、Terraform による上書きを防ぐ
+  lifecycle {
+    ignore_changes = [container_definitions]
+  }
 }
 
 # Run the migration task on initial apply
@@ -59,8 +71,9 @@ resource "null_resource" "run_db_migrate" {
   provisioner "local-exec" {
     command = <<EOT
       aws ecs run-task \
+        --region ${var.region} \
         --cluster ${aws_ecs_cluster.main.name} \
-        --task-definition ${aws_ecs_task_definition.db_migrate.family} \
+        --task-definition ${aws_ecs_task_definition.db_migrate.arn} \
         --launch-type FARGATE \
         --network-configuration "awsvpcConfiguration={subnets=[${join(",", aws_subnet.private[*].id)}],securityGroups=[${aws_security_group.ecs_tasks.id}],assignPublicIp=DISABLED}" \
         --count 1

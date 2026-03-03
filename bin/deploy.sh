@@ -17,7 +17,7 @@ echo "Getting ECR Repository URL..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-cd "$PROJECT_ROOT/terraform"
+cd "$PROJECT_ROOT/terraform-ecs"
 ECR_URL=$(terraform output -raw ecr_repository_url)
 cd "$PROJECT_ROOT"
 
@@ -41,9 +41,9 @@ docker build --platform linux/arm64 -t $ECR_URL:latest -f Dockerfile.prod .
 echo "Pushing Image to ECR..."
 docker push $ECR_URL:latest
 
-# 5. Update terraform.tfvars or apply with var
+# 5. Update terraform-ecs/terraform.tfvars or apply with var
 echo "Updating Infrastructure..."
-cd terraform
+cd terraform-ecs
 # We pass the image URL explicitly to ensure the task definition updates
 terraform apply -var="app_image=$ECR_URL:latest" -auto-approve
 
