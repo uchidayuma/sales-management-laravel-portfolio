@@ -1,0 +1,25 @@
+name: Snyk Security Vulnerability Scan
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # LaravelはPHP(Composer)だけでなくJS(npm)パッケージも使うため、
+      # Snyk CLIをセットアップして全体をスキャンする方法が適しています。
+      - name: Set up Snyk CLI
+        uses: snyk/actions/setup@master
+
+      # npmやcomposerのパッケージが含まれる全プロジェクトをスキャン
+      - name: Run Snyk test to check for vulnerabilities
+        run: snyk test --all-projects
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
