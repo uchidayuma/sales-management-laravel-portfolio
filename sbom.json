@@ -2,10 +2,10 @@
     "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
     "bomFormat": "CycloneDX",
     "specVersion": "1.6",
-    "serialNumber": "urn:uuid:270a9923-904b-44a6-a26e-161d344ef691",
+    "serialNumber": "urn:uuid:2b94dfe1-ab06-43f9-ad94-b4a602e06d7f",
     "version": 1,
     "metadata": {
-        "timestamp": "2026-03-05T09:11:49+08:00",
+        "timestamp": "2026-03-05T11:23:33+08:00",
         "tools": {
             "components": [
                 {
@@ -3946,6 +3946,32 @@
             ]
         },
         {
+            "bom-ref": "pkg:github/actions/checkout@v4?package-id=914baa20c1f7042a",
+            "type": "library",
+            "name": "actions/checkout",
+            "version": "v4",
+            "cpe": "cpe:2.3:a:actions\\/checkout:actions\\/checkout:v4:*:*:*:*:*:*:*",
+            "purl": "pkg:github/actions/checkout@v4",
+            "properties": [
+                {
+                    "name": "syft:package:foundBy",
+                    "value": "github-actions-usage-cataloger"
+                },
+                {
+                    "name": "syft:package:type",
+                    "value": "github-action"
+                },
+                {
+                    "name": "syft:package:metadataType",
+                    "value": "github-actions-use-statement"
+                },
+                {
+                    "name": "syft:location:0:path",
+                    "value": "/.github/workflows/security.yml"
+                }
+            ]
+        },
+        {
             "bom-ref": "pkg:github/actions/checkout@v4?package-id=4d5c54bf3d3b3808",
             "type": "library",
             "name": "actions/checkout",
@@ -4178,6 +4204,52 @@
                 {
                     "name": "syft:location:0:path",
                     "value": "/node_modules/stream-shift/.github/workflows/test.yml"
+                }
+            ]
+        },
+        {
+            "bom-ref": "pkg:github/actions/upload-artifact@v4?package-id=80fef71306b62ef6",
+            "type": "library",
+            "name": "actions/upload-artifact",
+            "version": "v4",
+            "cpe": "cpe:2.3:a:actions\\/upload-artifact:actions\\/upload-artifact:v4:*:*:*:*:*:*:*",
+            "purl": "pkg:github/actions/upload-artifact@v4",
+            "properties": [
+                {
+                    "name": "syft:package:foundBy",
+                    "value": "github-actions-usage-cataloger"
+                },
+                {
+                    "name": "syft:package:type",
+                    "value": "github-action"
+                },
+                {
+                    "name": "syft:package:metadataType",
+                    "value": "github-actions-use-statement"
+                },
+                {
+                    "name": "syft:cpe23",
+                    "value": "cpe:2.3:a:actions\\/upload-artifact:actions\\/upload_artifact:v4:*:*:*:*:*:*:*"
+                },
+                {
+                    "name": "syft:cpe23",
+                    "value": "cpe:2.3:a:actions\\/upload_artifact:actions\\/upload-artifact:v4:*:*:*:*:*:*:*"
+                },
+                {
+                    "name": "syft:cpe23",
+                    "value": "cpe:2.3:a:actions\\/upload_artifact:actions\\/upload_artifact:v4:*:*:*:*:*:*:*"
+                },
+                {
+                    "name": "syft:cpe23",
+                    "value": "cpe:2.3:a:actions\\/upload:actions\\/upload-artifact:v4:*:*:*:*:*:*:*"
+                },
+                {
+                    "name": "syft:cpe23",
+                    "value": "cpe:2.3:a:actions\\/upload:actions\\/upload_artifact:v4:*:*:*:*:*:*:*"
+                },
+                {
+                    "name": "syft:location:0:path",
+                    "value": "/.github/workflows/security.yml"
                 }
             ]
         },
@@ -71651,6 +71723,32 @@
             ]
         },
         {
+            "bom-ref": "pkg:github/snyk/actions@master?package-id=037bad01f1bc695d#setup",
+            "type": "library",
+            "name": "snyk/actions/setup",
+            "version": "master",
+            "cpe": "cpe:2.3:a:snyk\\/actions\\/setup:snyk\\/actions\\/setup:master:*:*:*:*:*:*:*",
+            "purl": "pkg:github/snyk/actions@master#setup",
+            "properties": [
+                {
+                    "name": "syft:package:foundBy",
+                    "value": "github-actions-usage-cataloger"
+                },
+                {
+                    "name": "syft:package:type",
+                    "value": "github-action"
+                },
+                {
+                    "name": "syft:package:metadataType",
+                    "value": "github-actions-use-statement"
+                },
+                {
+                    "name": "syft:location:0:path",
+                    "value": "/.github/workflows/security.yml"
+                }
+            ]
+        },
+        {
             "bom-ref": "pkg:composer/socialiteproviders/generators@v4.7.0?package-id=b653fda11839560e",
             "type": "library",
             "name": "socialiteproviders/generators",
@@ -84201,6 +84299,21 @@
                 {
                     "name": "syft:location:0:path",
                     "value": "/crewai_tool/uv.lock"
+                }
+            ]
+        },
+        {
+            "bom-ref": "a19c890be9531965",
+            "type": "file",
+            "name": "/Users/uchidayuma/Documents/GitHub/portfolio/sales-management-laravel/.github/workflows/security.yml",
+            "hashes": [
+                {
+                    "alg": "SHA-1",
+                    "content": "b64859aa8eab69a77a22db12478be01db33b890a"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "94ef62be9994c7c9b2ad22f0c6b4593a77e0b27e539e50c142dacdd2349bff16"
                 }
             ]
         },
