@@ -22,3 +22,19 @@ output "configure_kubectl" {
   description = "Command to configure kubectl"
   value       = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
 }
+
+output "sales_app_irsa_role_arn" {
+  description = "IAM Role ARN for the sales-app ServiceAccount (IRSA)"
+  value       = aws_iam_role.sales_app_irsa_role.arn
+}
+
+output "db_host" {
+  description = "RDS instance hostname"
+  value       = aws_db_instance.default.address
+}
+
+output "redis_host" {
+  description = "ElastiCache Redis cluster hostname"
+  value       = aws_elasticache_cluster.default.cache_nodes[0].address
+}
+

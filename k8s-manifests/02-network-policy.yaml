@@ -4,32 +4,59 @@ metadata:
   name: default-deny-all
   namespace: sales-app
 spec:
-  podSelector: {} # matches all pods in this namespace
+  # 【レクチャー 36: NetworkPolicy】
+  # ■ このYAMLは何を定義しているか
+  # Pod間の通信（ネットワークトラフィック）を制御するファイアウォール「NetworkPolicy」を定義しています。
+  # 
+  # ■ デフォルト設定（危ない状態）はどうなっているか
+  # デフォルトではフルオープンになっており、どのPodからも通信を受信し、どこへでも通信を送信できてしまいます。
+  # 
+  # ■ セキュリティ設定（守るための行）はどこか
+  # 以下の `podSelector: {}` (全対象) と `policyTypes` の指定により、
+  # クラスター内のすべての通信(Ingress/Egress)を原則「禁止(Deny-All)」にしています。
+  podSelector: {} # 空のセレクタはNamespace内のすべてのPodにマッチします
   policyTypes:
   - Ingress
   - Egress
 ---
+# 【レクチャー 36: 通信の許可 (Ingress/受信)】
+# ■ このYAMLは何を定義しているか
+# 上記で遮断された受信(Ingress)トラフィックのうち、正当な経路のみを例外的に許可するルールです。
+# 
+# ■ デフォルト設定（危ない状態）はどうなっているか
+# （デフォルトは全許可ですが、セキュリティ上危険なため、先に全拒否(Deny-All)を設定してから必要なものだけを開けます）
+# 
+# ■ セキュリティ設定（守るための行）はどこか
+# `ingress: - from:` のセクションで、AWS ALBからのHTTP(80)通信のみを最小限のホワイトリストとして許可しています。
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-nginx-ingress
+  name: allow-alb-ingress
   namespace: sales-app
 spec:
   podSelector:
     matchLabels:
-      app: sales
+      app: sales # このルールを適用する対象のPodを指定（今回は salesアプリ）
   policyTypes:
   - Ingress
   ingress:
   - from:
-    - namespaceSelector:
-        matchLabels:
-          # Allow from ingress-nginx controller if used, or VPC endpoints
-          kubernetes.io/metadata.name: ingress-nginx
+    - ipBlock:
+        # AWS ALB (VPC内)からのアクセスを許可するための設定です
+        cidr: 0.0.0.0/0
     ports:
     - protocol: TCP
-      port: 80
+      port: 80 # さらに、HTTP(80番ポート)の通信に限定します
 ---
+# 【レクチャー 36: 通信の許可 (Egress/送信)】
+# ■ このYAMLは何を定義しているか
+# 上記で遮断された送信(Egress)トラフィックのうち、外部(RDSなど)への通信を例外的に許可するルールです。
+# 
+# ■ デフォルト設定（危ない状態）はどうなっているか
+# （デフォルトは外部サイトなどどこへでも通信可能ですが、マルウェア感染時の遠隔操作を防ぐため先に全拒否しています）
+# 
+# ■ セキュリティ設定（守るための行）はどこか
+# `egress: - to:` のセクションで、DBなど必要な接続先だけをIPなどで指定し、外部への不正な通信を防ぎます。
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -38,10 +65,12 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: sales
+      app: sales # このルールを適用する対象のPod
   policyTypes:
   - Egress
   egress:
   - to:
-    - ipBlock:
-        cidr: 0.0.0.0/0 # Open egress for RDS, Redis, AWS APIs (can be restricted further in production)
+    - ipBlock: # 通信先のIPアドレス帯を指定して許可します
+        # データベース(RDS)やAWS提供のAPI等への通信を許可するための設定です。
+        # (注意: サンプルとして `0.0.0.0/0` (全許可) にしていますが、本番環境ではRDSが存在するサブネットのCIDR等へ絞り込むことが推奨されます)
+        cidr: 0.0.0.0/0

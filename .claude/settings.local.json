@@ -37,7 +37,8 @@
       "Bash(__NEW_LINE_d0d94329824a9ffb__ echo:*)",
       "Bash(__NEW_LINE_d5e0878f46424b4d__ echo:*)",
       "Bash(__NEW_LINE_d6440d1527dad6cf__ aws:*)",
-      "Bash(__NEW_LINE_1c9156f77d027371__ aws:*)"
+      "Bash(__NEW_LINE_1c9156f77d027371__ aws:*)",
+      "Bash(grep:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
