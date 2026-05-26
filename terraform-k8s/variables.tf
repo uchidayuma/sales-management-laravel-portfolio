@@ -29,5 +29,11 @@ variable "db_password" {
   default     = "dummy-password" # Will be overridden in production
 }
 
+variable "db_username" {
+  description = "Database master user name"
+  type        = string
+  default     = "salesdbuser"
+}
+
 # The AWS account ID is used to dynamically construct the ECR ARN for NodeGroup permissions
 data "aws_caller_identity" "current" {}

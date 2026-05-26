@@ -4,6 +4,8 @@
 
 A comprehensive **Sales Management System** built with **Laravel 11** for managing franchise operations, quotations, orders, and customer relationships. This enterprise-level application demonstrates full-stack PHP development capabilities with complex business logic implementation.
 
+![Application Screenshot](public/images/screenshot.png)
+
 ## 👨‍💻 About This Project
 
 This is a **real-world production system** I developed and maintained as a full-stack PHP developer. The project showcases my ability to:

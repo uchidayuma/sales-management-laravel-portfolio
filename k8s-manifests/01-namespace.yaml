@@ -3,7 +3,16 @@ kind: Namespace
 metadata:
   name: sales-app
   labels:
-    # Pod Security Admission (PSA): Enforce "restricted" profile at the namespace level
+    # 【レクチャー 33: Pod Security Admission (PSA)】
+    # ■ このYAMLは何を定義しているか
+    # Kubernetesの論理的な区画である「Namespace（ネームスペース）」を定義しています。
+    # 
+    # ■ デフォルト設定（危ない状態）はどうなっているか
+    # デフォルトのNamespaceでは何も制限がなく、特権コンテナやroot権限を持ったPodを自由に作成できてしまいます。
+    # 
+    # ■ セキュリティ設定（守るための行）はどこか
+    # `pod-security.kubernetes.io/enforce: restricted` によって、Namespace全体に
+    # 最も厳しい「restricted」プロファイルを適用し、危ないPodの作成を拒否します。
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: latest
     pod-security.kubernetes.io/audit: restricted

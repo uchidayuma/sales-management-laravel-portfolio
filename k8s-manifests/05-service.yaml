@@ -4,10 +4,13 @@ metadata:
   name: sales-service
   namespace: sales-app
 spec:
-  type: ClusterIP # Use ClusterIP; ingress controller (ALB) handles external access
+  # 【レクチャー: FargateとALBの連携】
+  # Fargate上のPodには直接IPでトラフィックを流す(target-type: ip)ため、
+  # NodePortではなくClusterIPで定義します。
+  type: ClusterIP
   selector:
     app: sales
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: 8080

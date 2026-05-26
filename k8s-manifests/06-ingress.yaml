@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sales-ingress
+  namespace: sales-app
+  annotations:
+    # 【レクチャー: K8sによるALBの自動作成】
+    # このアノテーションを起点に、AWS Load Balancer Controllerが自動的にALBを作成します。
+    alb.ingress.kubernetes.io/scheme: internet-facing # パブリック(インターネット公開)のALBを作成
+    alb.ingress.kubernetes.io/target-type: ip         # Fargateの場合、PodのIPアドレスへ直接トラフィックを流すよう指定必須
+    alb.ingress.kubernetes.io/success-codes: "200,302" # Laravelは/へのアクセス時に/login等へリダイレクト(302)する場合があるため許容する
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sales-service
+                port:
+                  number: 80

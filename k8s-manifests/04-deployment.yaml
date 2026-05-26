@@ -16,26 +16,93 @@ spec:
         app: sales
     spec:
       serviceAccountName: sales-app-sa
-      # Define shared emptyDir volume for /tmp to satisfy readonlyRootFilesystem constraint
+      # 【レクチャー 37: ランタイムの守り (readOnlyRootFilesystem対応)】
+      # ■ このYAMLは何を定義しているか
+      # Pod間で共有または一時利用するためのメモリベースのボリューム(`emptyDir`)を定義しています。
+      # 
+      # ■ デフォルト設定（危ない状態）はどうなっているか
+      # デフォルトではコンテナのファイルシステムは丸ごと書き込み可能となっており、侵入された際にマルウェアを配置されてしまう危険があります。
+      # 
+      # ■ セキュリティ設定（守るための行）はどこか
+      # のちほど説明する `readOnlyRootFilesystem: true` と組み合わせるため、どうしても書き込みが必要なパス( `/tmp` 等)だけを
+      # この `emptyDir` (メモリ上の一時領域) に逃がすことで、システム全体を読み取り専用に保護します。
       volumes:
         - name: tmp-volume
           emptyDir:
             medium: Memory
 
-      containers:
-        # NGINX Container
-        - name: web
-          image: 200144044244.dkr.ecr.ap-northeast-1.amazonaws.com/laravel-sales-dev-web-repo:latest
+      initContainers:
+        - name: migrate
+          image: 200144044244.dkr.ecr.ap-northeast-1.amazonaws.com/laravel-sales-dev-app-repo:20260308084223
           imagePullPolicy: Always
-          ports:
-            - containerPort: 80
+          command: ["php", "artisan", "migrate", "--force"]
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: APP_DEBUG
+              value: "false"
+            - name: LOG_CHANNEL
+              value: "stderr"
+          envFrom:
+            - secretRef:
+                name: sales-app-secrets
           securityContext:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
-            runAsUser: 101 # nginx user id
+            runAsUser: 33
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
+            - name: tmp-volume
+              mountPath: /var/www/storage/logs
+            - name: tmp-volume
+              mountPath: /var/www/storage/framework/cache/data
+            - name: tmp-volume
+              mountPath: /var/www/storage/framework/sessions
+            - name: tmp-volume
+              mountPath: /var/www/storage/framework/views
+
+      containers:
+        # NGINX Container
+        - name: web
+          image: 200144044244.dkr.ecr.ap-northeast-1.amazonaws.com/laravel-sales-dev-web-repo:20260308084223
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          # 【レクチャー 37: ランタイムの守り (SecurityContext)】
+          # ■ このYAMLは何を定義しているか
+          # コンテナの実行権限やファイルシステムのアクセス権などを制御する「SecurityContext」を定義しています。
+          # 
+          # ■ デフォルト設定（危ない状態）はどうなっているか
+          # デフォルトでは `root` ユーザーとして実行され、ファイルシステムも書き換え可能、不要なLinux特権(Capabilities)も持った強力すぎる状態です。
+          # 
+          # ■ セキュリティ設定（守るための行）はどこか
+          # 以下の行すべてが保護設定です。ルートファイルシステムの保護、非特権ユーザーでの実行、特権昇格の禁止、
+          # 全Linux特権の剥奪(Drop)、およびセキュアなシステムコールのみの許可(seccompProfile)を行っています。
+          securityContext:
+            readOnlyRootFilesystem: true  # ルートファイルシステムの変更を禁止(改ざん防止)
+            runAsNonRoot: true            # rootユーザーでの実行を禁止
+            runAsUser: 101                 # nginxユーザー(非特権ユーザー)で実行
+            allowPrivilegeEscalation: false # コンテナ内のプロセスが特権を昇格できないようにする
+            capabilities:
+              drop: ["ALL"]               # Linuxの不要な特権(Capabilities)を全て剥奪
+            seccompProfile:
+              type: RuntimeDefault        # ランタイムのデフォルトseccompプロファイルを適用
+          # 【レクチャー 37: ランタイムの守り (リソース制限)】
+          # ■ このYAMLは何を定義しているか
+          # コンテナが使用できるCPUやメモリの「上限(limits)」と「要求量(requests)」を定義しています。
+          # 
+          # ■ デフォルト設定（危ない状態）はどうなっているか
+          # デフォルトでは無制限であり、1つのコンテナがプログラムのバグやDDoS攻撃で暴走した際にNode全体のCPU/メモリを食いつぶし、
+          # 同居する他のアプリまでまとめてダウンさせてしまうリスク(Noisy Neighbor問題)があります。
+          # 
+          # ■ セキュリティ設定（守るための行）はどこか
+          # 以下の `limits:` と `requests:` の両方を指定することで、使用させてもよいリソースの絶対的な上限を定めています。
           resources:
             requests:
               cpu: "100m"
@@ -53,7 +120,7 @@ spec:
 
         # PHP-FPM APP Container
         - name: app
-          image: 200144044244.dkr.ecr.ap-northeast-1.amazonaws.com/laravel-sales-dev-app-repo:latest
+          image: 200144044244.dkr.ecr.ap-northeast-1.amazonaws.com/laravel-sales-dev-app-repo:20260308084223
           imagePullPolicy: Always
           ports:
             - containerPort: 9000
@@ -68,18 +135,20 @@ spec:
               value: "redis"
             - name: SESSION_DRIVER
               value: "redis"
-            # NOTE: DB_HOST, REDIS_HOST etc. would ideally be injected via External Secrets
-            # For this demo, assuming similar network access
-            # - name: DB_PASSWORD
-            #   valueFrom:
-            #     secretKeyRef: ...
+          envFrom:
+            - secretRef:
+                name: sales-app-secrets
+          # 【レクチャー 37: ランタイムの守り (SecurityContext)】
+          # （※ Nginx側の設定と同じく、安全なコンテナ実行のための設定群です。デフォルトは危険なroot実行等になります。）
           securityContext:
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 33 # www-data user id
-            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true  # ルートファイルシステムの変更を禁止(改ざん防止)
+            runAsNonRoot: true            # rootユーザーでの実行を禁止
+            runAsUser: 33                 # www-dataユーザー(非特権ユーザー)で実行
+            allowPrivilegeEscalation: false # 特権の昇格を防止
             capabilities:
-              drop: ["ALL"]
+              drop: ["ALL"]               # Linux特権を全剥奪
+            seccompProfile:
+              type: RuntimeDefault        # ランタイムのデフォルトseccompプロファイルを適用
           resources:
             requests:
               cpu: "250m"
@@ -90,3 +159,11 @@ spec:
           volumeMounts:
             - name: tmp-volume
               mountPath: /tmp
+            - name: tmp-volume
+              mountPath: /var/www/storage/logs
+            - name: tmp-volume
+              mountPath: /var/www/storage/framework/cache/data
+            - name: tmp-volume
+              mountPath: /var/www/storage/framework/sessions
+            - name: tmp-volume
+              mountPath: /var/www/storage/framework/views
