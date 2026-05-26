@@ -46,3 +46,17 @@ resource "aws_iam_role_policy_attachment" "sales_app_ssm_readonly" {
   role       = aws_iam_role.sales_app_irsa_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
+
+# 【レクチャー 36: S3へのアップロードと読み取り権限】
+resource "aws_iam_role_policy_attachment" "sales_app_s3_full" {
+  role = aws_iam_role.sales_app_irsa_role.name
+  # S3への全操作を許可するマネージドポリシー
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+# 【レクチャー 36: ElastiCache（Redis）へのアクセス権限】
+resource "aws_iam_role_policy_attachment" "sales_app_elasticache_full" {
+  role = aws_iam_role.sales_app_irsa_role.name
+  # ElastiCacheの操作を許可するマネージドポリシー
+  policy_arn = "arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess"
+}

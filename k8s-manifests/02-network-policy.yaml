@@ -4,7 +4,7 @@ metadata:
   name: default-deny-all
   namespace: sales-app
 spec:
-  # 【レクチャー 36: NetworkPolicy】
+  # 【レクチャー 37: NetworkPolicy】
   # ■ このYAMLは何を定義しているか
   # Pod間の通信（ネットワークトラフィック）を制御するファイアウォール「NetworkPolicy」を定義しています。
   # 
