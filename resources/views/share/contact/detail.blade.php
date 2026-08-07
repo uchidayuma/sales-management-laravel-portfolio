@@ -359,6 +359,36 @@
     </tbody>
   </table>
 
+  {{-- INTENTIONAL FLAW: Logic in View / No Component --}}
+  <div class="mt-5">
+      <h3>活動履歴 (Timeline)</h3>
+      <div class="timeline">
+          @if(isset($activities) && count($activities) > 0)
+              @foreach($activities as $activity)
+                  <div class="card mb-3">
+                      <div class="card-body">
+                          <h5 class="card-title">{{ $activity->activity_type }}</h5>
+                          <h6 class="card-subtitle mb-2 text-muted">
+                              {{ $activity->created_at->format('Y-m-d H:i') }} - 
+                              {{-- INTENTIONAL FLAW: N+1 Query in View --}}
+                              @php
+                                  $user = \App\Models\User::find($activity->user_id);
+                              @endphp
+                              {{ $user ? $user->name : 'Unknown' }}
+                          </h6>
+                          <p class="card-text">{{ $activity->description }}</p>
+                          @if($activity->related_type == 'quotation')
+                              <a href="{{ route('quotations.show', ['id' => $activity->related_id]) }}" class="card-link">見積もりを見る</a>
+                          @endif
+                      </div>
+                  </div>
+              @endforeach
+          @else
+              <p>活動履歴はありません。</p>
+          @endif
+      </div>
+  </div>
+
   <div class="mt-4 d-flex justify-content-between"> 
     <a type="button" class="px-xl-5 btn btn-light" href="{{route('contact.customers')}}">戻る</a>
 @if(isAdmin() || $contact->user_id == $user->id)

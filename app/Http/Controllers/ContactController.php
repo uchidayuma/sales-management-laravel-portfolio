@@ -18,6 +18,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\CsvExportOptions;
 use App\Models\Prefecture;
+use App\Models\CustomerActivity; // Added import
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -354,7 +355,11 @@ class ContactController extends MyController
             toSlack($url = env('SLACK_WEBHOOK_URL', ''), $channel = env('SLACK_DEV_CHANNEL', '#sample-dev'), $message = "fc_confirmed_atの更新に失敗しました。" . $e->getMessage());
         }
 
-        return view('share.contact.detail', compact('contact', 'breadcrumbs', 'id', 'quotations', 'same_customer_contacts_id', 'indexUrl', 'isOnSite', 'isMainFc', 'existenceMainFc', 'switchContactType'));
+        // INTENTIONAL FLAW: N+1 Query. Fetching activities without eager loading 'user'.
+        // We will fetch the user inside the view loop or just rely on lazy loading if accessing $activity->user
+        $activities = CustomerActivity::where('customer_id', $id)->orderBy('created_at', 'desc')->get(); // No pagination (another flaw)
+
+        return view('share.contact.detail', compact('contact', 'breadcrumbs', 'id', 'quotations', 'same_customer_contacts_id', 'indexUrl', 'isOnSite', 'isMainFc', 'existenceMainFc', 'switchContactType', 'activities'));
     }
 
     public function assignedList()
